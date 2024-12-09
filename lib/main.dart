@@ -3,14 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:my_dorm/models/data_model.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
 import 'package:provider/provider.dart';
+import 'package:timezone/data/latest.dart' as tz;
 import 'service/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  MyNotificationService myNotif = MyNotificationService();
-  await myNotif.initialization();
-  // int countDown = 22 - DateTime.now().hour;
-  // DateTime selectedTime = DateTime.now().add(Duration(hours: countDown));
+  tz.initializeTimeZones();
+  final NotificationService _notificationService = NotificationService();
+  await _notificationService.initialize();
   DateTime selectedTime = DateTime(
     DateTime.now().year,
     DateTime.now().month,
@@ -19,8 +19,8 @@ void main() async {
     19,
     0,
   );
-  myNotif.scheduleDailyNotification(selectedTime);
-  // myNotif.showNotification();
+  await _notificationService.scheduleNotification(selectedTime);
+  // _notificationService.showInstantNotification();
   runApp(const MainApp());
 }
 
