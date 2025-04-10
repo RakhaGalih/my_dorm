@@ -4,7 +4,10 @@ import 'package:my_dorm/components/appbar_page.dart';
 import 'package:my_dorm/components/shadow_container.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/screens/admin/apps/form/add_pelanggaran_page.dart';
+import 'package:my_dorm/screens/admin/apps/list/list_detail_pelanggaran.dart';
 import 'package:my_dorm/service/http_service.dart';
+import 'package:my_dorm/service/image_service.dart';
+import 'dart:developer' as dev;
 
 class ListPelanggaranPage extends StatefulWidget {
   const ListPelanggaranPage({super.key});
@@ -15,6 +18,8 @@ class ListPelanggaranPage extends StatefulWidget {
 
 class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
   List<Map<String, dynamic>> pelanggarans = [];
+  List<Map<String, dynamic>> dormitizens = [];
+  int max_pelanggaran = 9;
   String error = "";
   bool _showSpinner = false;
 
@@ -22,6 +27,29 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
   void initState() {
     super.initState();
     getPelanggaran();
+    getDormitizenbyKamar();
+  }
+
+  Future<void> getDormitizenbyKamar() async {
+    error = "";
+    try {
+      String? token = await getToken();
+      var response = await getDataToken('/user/101', token!);
+      List<Map<String, dynamic>> parsedData = (response['response'] as List)
+          .map((item) => item as Map<String, dynamic>)
+          .toList();
+      setState(() {
+        for (int i = 0; i < parsedData.length; i++) {
+          dormitizens
+              .add({'nama': parsedData[i]['nama'], 'jml_pelanggaran': 0});
+        }
+      });
+    } catch (e) {
+      print(e);
+      setState(() {
+        error = "Error: $e";
+      });
+    }
   }
 
   String formatTanggal(String tanggal) {
@@ -52,6 +80,15 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
     } finally {
       setState(() {
         _showSpinner = false;
+        for (int i = 0; i < pelanggarans.length; i++) {
+          for (int j = 0; j < dormitizens.length; j++) {
+            if ((pelanggarans[i]['dormitizen']['nama'] ==
+                    dormitizens[j]['nama']) &&
+                (dormitizens[j]['jml_pelanggaran'] < max_pelanggaran)) {
+              dormitizens[j]['jml_pelanggaran'] += 1;
+            }
+          }
+        }
       });
     }
   }
@@ -74,8 +111,51 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
               );
             },
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 50,
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: kGrey),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.search),
+                        SizedBox(
+                          width: 5,
+                        ),
+                        Text('Cari')
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Container(
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: kGrey),
+                    ),
+                    child: Icon(Icons.filter_alt)),
+              ],
+            ),
+          ),
           if (_showSpinner)
-            const Center(child: CircularProgressIndicator())
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Center(
+                  child: CircularProgressIndicator(
+                color: kMain,
+              )),
+            )
           else if (error.isNotEmpty)
             Center(
               child: Text(
@@ -87,30 +167,38 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                itemCount: pelanggarans.length,
+                itemCount: dormitizens.length,
                 itemBuilder: (context, index) {
-                  final pelanggaran = pelanggarans[index];
+                  final dormitizen = dormitizens[index];
+                  double progressValue =
+                      dormitizen['jml_pelanggaran'] / max_pelanggaran;
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: ShadowContainer(
                       onTap: () {
-                        // Tambahkan aksi ketika item diklik
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ListDetailPelanggaranPage(
+                                namaDormitizen: dormitizen['nama']),
+                          ),
+                        );
                       },
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Gambar Lokal Menggunakan Image.asset
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.asset(
-                              'images/bukti_pelanggaran.png',
+                            child: MyNetworkImage(
+                              imageURL:
+                                  'https://mydorm-mobile-backend-production.up.railway.app/images/${pelanggaran['gambar']}',
                               width: 100,
                               height: 100,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(
-                                  width: 100,
-                                  height: 100,
+                                  width: 50,
+                                  height: 50,
                                   color: Colors.grey[300],
                                   child: const Icon(Icons.image_not_supported),
                                 );
@@ -124,26 +212,39 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Kategori: ${pelanggaran['kategori']}',
-                                  style: kBoldTextStyle.copyWith(fontSize: 16),
+                                  dormitizen['nama'],
+                                  style: kBoldTextStyle.copyWith(fontSize: 15),
                                 ),
                                 const SizedBox(height: 4),
-                                Text(
-                                  'Nama: ${pelanggaran['dormitizen']['nama']}',
-                                  style:
-                                      kMediumTextStyle.copyWith(fontSize: 15),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Waktu: ${formatTanggal(pelanggaran['waktu'])}',
-                                  style: kMediumTextStyle.copyWith(
-                                      fontSize: 14, color: kGrey),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Kamar: ${pelanggaran['dormitizen']['kamar']['nomor']}',
-                                  style: kMediumTextStyle.copyWith(
-                                      fontSize: 14, color: kGrey),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: LinearProgressIndicator(
+                                          value: progressValue,
+                                          minHeight: 8,
+                                          backgroundColor: kGrey,
+                                          valueColor:
+                                              AlwaysStoppedAnimation(kRed),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    RichText(
+                                        text: TextSpan(
+                                            style: kMediumTextStyle.copyWith(
+                                                fontSize: 15, color: kGrey),
+                                            children: [
+                                          TextSpan(
+                                            text:
+                                                "${dormitizen['jml_pelanggaran']}",
+                                            style: kMediumTextStyle.copyWith(
+                                                fontSize: 15, color: kRed),
+                                          ),
+                                          TextSpan(text: "/${max_pelanggaran}")
+                                        ]))
+                                  ],
                                 ),
                               ],
                             ),

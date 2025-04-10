@@ -26,8 +26,9 @@ class MyNetworkImage extends StatelessWidget {
         return child;
       } else {
         return Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
+          child: SizedBox(
+            width: width,
+            height: height,
             child: CircularProgressIndicator(
               color: kMain,
               value: loadingProgress.expectedTotalBytes != null
@@ -40,10 +41,21 @@ class MyNetworkImage extends StatelessWidget {
       }
     }, errorBuilder:
             (BuildContext context, Object exception, StackTrace? stackTrace) {
-      return SizedBox(
-          width: width,
-          height: height,
-          child: const Text('Failed to load image'));
+      return Container(
+        width: width,
+        height: height,
+        color: Colors.grey[300],
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.image_not_supported),
+            Text(
+              'Failed to load image',
+              textAlign: TextAlign.center,
+            )
+          ],
+        ),
+      );
     });
   }
 }

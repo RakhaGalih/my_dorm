@@ -151,13 +151,20 @@ class _PaketPageDormitizenState extends State<PaketPageDormitizen> {
                     children: List.generate(
                         pakets.length,
                         (index) => PaketCard(
+                              nomorKamar: pakets[index]['dormitizen']['kamar']
+                                  ['nomor'],
                               paketSampai:
                                   '${formatTanggal(pakets[index]['waktu_tiba'])} (Paket Sampai)',
-                              paketDiambil: pakets[index]['status_pengambilan'] == 'sudah' ? '${formatTanggal(pakets[index]['waktu_diambil'])} (Paket Diambil)' : '-' ,
+                              paketDiambil: pakets[index]
+                                          ['status_pengambilan'] ==
+                                      'sudah'
+                                  ? '${formatTanggal(pakets[index]['waktu_diambil'])} (Paket Diambil)'
+                                  : '-',
                               namaDormitizen: pakets[index]['dormitizen']
                                   ['nama'],
                               status: pakets[index]['status_pengambilan'],
-                              pjPaket: '${pakets[index]['penerima paket']['nama']} (Pj Paket)',
+                              pjPaket:
+                                  '${pakets[index]['penerima paket']['nama']} (Pj Paket)',
                             )),
                   ),
                 ],

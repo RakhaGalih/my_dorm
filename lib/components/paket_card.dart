@@ -4,6 +4,7 @@ import 'package:my_dorm/constant/constant.dart';
 
 class PaketCard extends StatelessWidget {
   final String namaDormitizen;
+  final String nomorKamar;
   final String paketSampai;
   final String paketDiambil;
   final String status;
@@ -12,6 +13,7 @@ class PaketCard extends StatelessWidget {
   const PaketCard({
     super.key,
     required this.namaDormitizen,
+    required this.nomorKamar,
     required this.paketSampai,
     required this.paketDiambil,
     required this.status,
@@ -26,6 +28,7 @@ class PaketCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black, width: 0.5),
         boxShadow: [
           BoxShadow(
             blurRadius: 3,
@@ -36,37 +39,33 @@ class PaketCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Column(
-            children: [
-              Image.asset('images/paket.png', width: 80, height: 80),
-              const SizedBox(height: 5),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: status == 'sudah'
-                      ? Colors.green.withOpacity(0.2)
-                      : Colors.red.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: Text(
-                  status == 'sudah' ? 'Diambil' : 'Belum',
-                  style: TextStyle(
-                    color: status == 'sudah' ? Colors.green : Colors.red,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          Image.asset('images/paket.png', width: 80, height: 80),
+          const SizedBox(height: 5),
           const SizedBox(width: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                namaDormitizen,
+                "Kamar $nomorKamar",
                 style: kBoldTextStyle.copyWith(fontSize: 15),
               ),
+              const SizedBox(height: 5),
+              if (status == "belum")
+                Row(
+                  children: [
+                    const Icon(
+                      FontAwesomeIcons.locationPin,
+                      size: 18,
+                      color: kRed,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      "Helpdesk",
+                      style: kSemiBoldTextStyle.copyWith(
+                          fontSize: 12, color: kRed),
+                    )
+                  ],
+                ),
               const SizedBox(height: 5),
               Row(
                 children: [
@@ -76,7 +75,7 @@ class PaketCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 5),
                   Text(
-                    pjPaket,
+                    namaDormitizen,
                     style: kSemiBoldTextStyle.copyWith(fontSize: 12),
                   )
                 ],
@@ -84,31 +83,32 @@ class PaketCard extends StatelessWidget {
               const SizedBox(height: 5),
               Row(
                 children: [
-                  const Icon(
-                    Icons.timer,
-                    size: 18,
-                  ),
+                  const Icon(Icons.timer, size: 18, color: kGrey),
                   const SizedBox(width: 5),
                   Text(
                     paketSampai,
-                    style: kSemiBoldTextStyle.copyWith(fontSize: 12),
+                    style:
+                        kSemiBoldTextStyle.copyWith(fontSize: 12, color: kGrey),
                   )
                 ],
               ),
               const SizedBox(height: 5),
-               Row(
-                children: [
-                  const Icon(
-                    Icons.timer,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    paketDiambil,
-                    style: kSemiBoldTextStyle.copyWith(fontSize: 12),
-                  )
-                ],
-              ),
+              if (status == "sudah")
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.timer,
+                      size: 18,
+                      color: kGrey,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      paketDiambil,
+                      style: kSemiBoldTextStyle.copyWith(
+                          fontSize: 12, color: kGrey),
+                    )
+                  ],
+                ),
               const SizedBox(height: 5),
             ],
           )

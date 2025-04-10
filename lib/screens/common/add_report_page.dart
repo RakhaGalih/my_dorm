@@ -27,14 +27,13 @@ class _AddReportPageState extends State<AddReportPage> {
     setState(() {
       _showSpinner = true;
     });
-    Map<String, dynamic> response = {};
+    dynamic response = {};
     try {
       Map<String, dynamic> data = {
         'judul': _judulController.text,
         'isi': _deskripsiController.text,
       };
-      String? token = await getToken();
-      response = await postDataToken("/laporan", data, token!);
+      response = await postDataToken("/laporan", data);
       print('berhasil tambah laporan!');
       if (mounted) {
         Navigator.pop(context, 'sesuatu');

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -21,7 +23,7 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
   final TextEditingController _kategoriController = TextEditingController();
   final TextEditingController _kamarController = TextEditingController();
   final TextEditingController _waktuController = TextEditingController();
-  String gambar = "gambar-bukti.jpg";
+  File? gambar;
   final List<Map<String, dynamic>> dormitizenDataList = [];
   final _formKey = GlobalKey<FormState>();
   String waktu = "";
@@ -36,20 +38,19 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
     setState(() {
       _showSpinner = true;
     });
-    Map<String, dynamic> response = {};
+    dynamic response = {};
     try {
-      Map<String, dynamic> data = {
-        'kategori': selectedKategori,
+      Map<String, String> data = {
+        'kategori': selectedKategori!,
         'waktu': waktu,
-        'gambar': gambar,
-        'dormitizen_id': int.parse(selectedDormitizen!),
+        'dormitizen_id': selectedDormitizen!,
       };
-      String? token = await getToken();
-      response = await postDataToken("/pelanggaran", data, token!);
+      response = await postDataTokenWithImage("/pelanggaran", data, gambar);
       print('berhasil tambah laporan!');
       if (mounted) {
         Navigator.pop(context, 'sesuatu');
       }
+
       print(response['message']);
     } catch (e) {
       setState(() {
@@ -137,11 +138,6 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
                                   const BorderSide(color: kMain, width: 2),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            floatingLabelStyle: TextStyle(
-                              color: _formKey.currentState?.validate() == false
-                                  ? Colors.red
-                                  : kMain,
-                            ),
                             suffixIcon: IconButton(
                               onPressed: () async {
                                 await searchDormitizen(_kamarController.text);
@@ -194,13 +190,11 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
                             'Membawa Teman dari luar Gedung Asrama',
                           ],
                           onItemSelected: (selectedItem) {
-                            // Handle the selected item here
                             selectedKategori = selectedItem;
                           },
                         ),
                         FormDatePicker(
                           onDateTimeSelected: (selectedDateTime) {
-                            // Handle the combined DateTime here
                             String formattedDate =
                                 DateFormat('yyyy-MM-dd HH:mm:ss')
                                     .format(selectedDateTime!);
@@ -210,11 +204,12 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
                         FormPhotoPicker(
                           title: 'Pelanggaran',
                           onImageSelected: (selectedImage) {
-                            // Handle the selected image here
                             if (selectedImage != null) {
                               print(
                                   'Selected image path: ${selectedImage.path}');
-                              gambar = selectedImage.path;
+                              setState(() {
+                                gambar = selectedImage;
+                              });
                             } else {
                               print('Image cleared');
                             }
@@ -224,7 +219,7 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
                           ontap: () {
                             if (_formKey.currentState?.validate() ?? false) {
                               if (selectedDormitizen!.isNotEmpty &&
-                                  waktu != "") {
+                                  waktu != "" && gambar != null) {
                                 _addPelanggaran();
                               } else {
                                 print(waktu);

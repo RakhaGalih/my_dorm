@@ -23,8 +23,10 @@ class _FormPhotoPickerState extends State<FormPhotoPicker> {
   final ImageService _imageService = ImageService();
 
   void _onImageCaptured(File image) {
+    print(image.path);
     setState(() {
-      _imageService.selectedImage = image; // Set the selected image in ImageService
+      _imageService.selectedImage =
+          image; // Set the selected image in ImageService
     });
     widget.onImageSelected(image); // Call the callback with the new image
   }
@@ -33,7 +35,8 @@ class _FormPhotoPickerState extends State<FormPhotoPicker> {
     setState(() {
       _imageService.clearImage();
     });
-    widget.onImageSelected(null); // Call the callback with null to indicate image removal
+    widget.onImageSelected(
+        null); // Call the callback with null to indicate image removal
   }
 
   @override
@@ -46,7 +49,8 @@ class _FormPhotoPickerState extends State<FormPhotoPicker> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CameraPage(onImageCaptured: _onImageCaptured),
+                    builder: (context) =>
+                        CameraPage(onImageCaptured: _onImageCaptured),
                   ),
                 );
               },

@@ -1,11 +1,10 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:my_dorm/constant/constant.dart';
 
-class GradientButton extends StatelessWidget {
+class OutlineButton extends StatelessWidget {
   final VoidCallback ontap;
   final String title;
-  const GradientButton({
+  const OutlineButton({
     super.key,
     required this.ontap,
     required this.title,
@@ -20,10 +19,12 @@ class GradientButton extends StatelessWidget {
         width: double.maxFinite,
         height: 52,
         decoration: BoxDecoration(
-            gradient: kGradientMain, borderRadius: BorderRadius.circular(10)),
+            color: kWhite,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: kRed, width: 3.0)),
         child: Text(
           title,
-          style: kBoldTextStyle.copyWith(color: kWhite, fontSize: 16),
+          style: kBoldTextStyle.copyWith(color: kRed, fontSize: 16),
         ),
       ),
     );
