@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_dorm/components/appbar_page.dart';
 import 'package:my_dorm/constant/constant.dart';
-import 'package:my_dorm/models/information_model.dart';
 import 'package:my_dorm/screens/admin/apps/form/add_informasi_page.dart';
 
 class ListInformasiPage extends StatefulWidget {
@@ -12,150 +11,156 @@ class ListInformasiPage extends StatefulWidget {
 }
 
 class _ListInformasiPageState extends State<ListInformasiPage> {
-  List<InformationModel> dataInformasi = [
-    InformationModel('Pengurasan Air', '11 November 2023', kGradientBlue),
-    InformationModel('Welcoming Party', '11 November 2023', kGradientGreen),
+  final List<Map<String, dynamic>> informasi = [
+    {
+      "author": "Rakha Galih Nugraha S",
+      "date": "12 Januari 2025",
+      "title": "Open Recruitment Senior Residents XIII",
+      "excerpt":
+          "Formulir ini adalah langkah pertama bagi Dormitizen dan TeluTizen yang ingin menjadi bagian dari Senior Resident XIII...",
+      "imageUrl":
+          "https://via.placeholder.com/300x150", // ganti dengan URL gambar asli
+    },
+    {
+      "author": "Iksan Oktav risandy",
+      "date": "19 Desember 2024",
+      "title": "Open Recruitment Senior Residents XII",
+      "excerpt":
+          "Formulir ini adalah langkah pertama bagi Dormitizen dan TeluTizen yang ingin menjadi bagian dari Senior Resident XII...",
+      "imageUrl":
+          "https://via.placeholder.com/300x150", // ganti dengan URL gambar asli
+    },
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SizedBox(
-      height: MediaQuery.of(context).size.height,
-      child: Column(children: [
-        AppBarPage(
-          title: 'Informasi',
-          onAdd: () {
-            Navigator.push(
+      body: Column(
+        children: [
+          AppBarPage(
+            title: 'Informasi',
+            onAdd: () {
+              Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const AddInformasiPage()));
-          },
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(30, 20, 30, 0),
-          child: Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: 50,
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: kGrey),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.search),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Text('Cari')
-                    ],
+                  builder: (context) => const AddInformasiPage(),
+                ),
+              );
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(30, 20, 30, 0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 50,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: kGrey),
+                    ),
+                    child: Row(
+                      children: const [
+                        Icon(Icons.search),
+                        SizedBox(width: 5),
+                        Text('Cari')
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              Container(
+                const SizedBox(width: 10),
+                Container(
                   height: 50,
                   width: 50,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: kGrey),
                   ),
-                  child: Icon(Icons.filter_alt)),
-            ],
+                  child: const Icon(Icons.filter_alt),
+                ),
+              ],
+            ),
           ),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Expanded(
+          const SizedBox(height: 10),
+          Expanded(
             child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return Container(
-                    padding: EdgeInsets.all(16),
-                    margin: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                    height: 200,
-                    decoration: BoxDecoration(
-                        gradient: kGradientBlue,
-                        borderRadius: BorderRadius.circular(10)),
-                    child: Stack(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              itemCount: informasi.length,
+              itemBuilder: (context, index) {
+                final item = informasi[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            const CircleAvatar(
+                              backgroundImage: AssetImage(
+                                  'assets/avatar.png'), // ganti path jika perlu
+                              radius: 20,
+                            ),
+                            const SizedBox(width: 10),
                             Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'Pengurasan Air',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Text(
-                                  '11 November 2023',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white70,
-                                  ),
-                                ),
+                                Text(item['author'],
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold)),
+                                Text(item['date'],
+                                    style: const TextStyle(
+                                        color: Colors.grey, fontSize: 12)),
                               ],
                             ),
                           ],
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            GestureDetector(
-                              child: Icon(
-                                Icons.delete,
-                                color: Colors.white,
+                        const SizedBox(height: 10),
+                        Text(
+                          item['title'],
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text.rich(
+                          TextSpan(
+                            text: item['excerpt'],
+                            children: [
+                              TextSpan(
+                                text: ' Baca Selengkapnya',
+                                style: const TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold),
                               ),
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text('Hapus informasi'),
-                                      content: Text(
-                                          'Apakah anda yakin ingin menghapus informasi ini?'),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          child: const Text('Tidak'),
-                                          onPressed: () {
-                                            Navigator.of(context)
-                                                .pop(); // kalau tidak jadi hapus
-                                          },
-                                        ),
-                                        TextButton(
-                                          child: const Text('Ya'),
-                                          onPressed: () {
-                                            Navigator.of(context)
-                                                .pop(); // kalau jadi hapus
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-                          ],
-                        )
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            item['imageUrl'],
+                            height: 140,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ],
                     ),
-                  );
-                })),
-      ]),
-    ));
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
