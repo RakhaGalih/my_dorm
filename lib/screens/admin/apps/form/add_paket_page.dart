@@ -25,7 +25,6 @@ class _AddPaketPageState extends State<AddPaketPage> {
   final _formKey = GlobalKey<FormState>();
   String? selectedDormitizen;
   final List<Map<String, dynamic>> dormitizenDataList = [];
-  final TextEditingController _kamarController = TextEditingController();
   String error = "";
   String waktu = "";
   File? gambar;

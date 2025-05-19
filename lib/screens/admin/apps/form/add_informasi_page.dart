@@ -27,44 +27,7 @@ class _AddInformasiPageState extends State<AddInformasiPage> {
   String waktu = "";
   File? gambar;
   bool _showSpinner = false;
-
-  Future<void> _addInformasi() async {
-    error = "";
-    setState(() {
-      _showSpinner = true;
-    });
-    dynamic response = {};
-    try {
-      Map<String, String> data = {
-        'judul': _judulController.text,
-        'isi': _deskripsiController.text,
-        'kategori': kategori!,
-      };
-      response = await postDataTokenWithImage("/berita", data, gambar);
-      print('berhasil tambah laporan!');
-      if (mounted) {
-        Navigator.pop(context, 'sesuatu');
-      }
-
-      print(response['message']);
-    } catch (e) {
-      setState(() {
-        _showSpinner = false;
-        error = "${response['message']}";
-      });
-      print('Login error: $e');
-      print(response);
-    }
-    setState(() {
-      _showSpinner = false;
-    });
-  }
-
-  File? gambar;
   String? selectedKategori;
-
-  String error = "";
-  bool _showSpinner = false;
 
   Future<void> _addInformasi() async {
     error = "";
