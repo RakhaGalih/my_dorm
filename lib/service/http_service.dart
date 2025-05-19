@@ -156,7 +156,7 @@ Future<String?> getRole() async {
 }
 
 Future<dynamic> postToken(
-    String address, String token, String dormitizenId) async {
+    String address, String token, int dormitizenId) async {
   final uri = Uri.parse(apiURL + address);
   final response = await http.post(
     uri,

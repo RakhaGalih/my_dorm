@@ -8,8 +8,6 @@ import 'package:my_dorm/screens/auth/pilih_role.dart';
 import 'package:my_dorm/screens/auth/register_page.dart';
 import 'package:my_dorm/screens/dormitizen/home_dormitizen.dart';
 import 'package:my_dorm/service/http_service.dart';
-import 'package:my_dorm/service/myfirebasenotification_service.dart';
-import 'dart:developer' as dev;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -40,13 +38,7 @@ class _LoginPageState extends State<LoginPage> {
       response = await postData("/login", data);
       String token = response['accessToken']; // Ambil token dari response
       await saveToken(token, response['user_type']);
-      dev.log('response: ${response}');
-
-      // kirim token ke backend
-      String tokenFirebaseNotification =
-          await FirebaseNotificationService.getToken();
-      postToken('/notification/saveToken', tokenFirebaseNotification,
-          response['dormitizen_id']);
+      print('response login: ${response}');
 
       if (mounted) {
         if (response['user_type'] == 'senior_resident' ||
@@ -61,6 +53,7 @@ class _LoginPageState extends State<LoginPage> {
               MaterialPageRoute(builder: (context) => const PIlihRole()));
         }
       }
+
       print('berhasil login!');
       String? accessToken = await getToken();
       print(accessToken);
