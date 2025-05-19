@@ -9,7 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const String apiURL = "https://mydorm-mobile-backend-production.up.railway.app";
 
-
 Future<Map<String, dynamic>> getDataToken(String address, String token) async {
   final uri = Uri.parse(apiURL + address);
   final response = await http.get(
@@ -22,7 +21,6 @@ Future<Map<String, dynamic>> getDataToken(String address, String token) async {
   if (response.statusCode == 200) {
     return jsonDecode(response.body);
   } else if (response.statusCode == 401 || response.statusCode == 403) {
-    
     throw Exception('Unauthorized or Forbidden');
   } else {
     print('Failed to load user details. Status code: ${response.statusCode}');
@@ -155,4 +153,18 @@ Future<void> removeToken() async {
 Future<String?> getRole() async {
   final prefs = await SharedPreferences.getInstance();
   return prefs.getString('role');
+}
+
+Future<dynamic> postToken(
+    String address, String token, String dormitizenId) async {
+  final uri = Uri.parse(apiURL + address);
+  final response = await http.post(
+    uri,
+    body: jsonEncode({
+      "fcm_token": token,
+      "dormitizen_id": dormitizenId,
+    }),
+  );
+
+  _handleResponse(response);
 }
