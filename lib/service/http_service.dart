@@ -155,14 +155,18 @@ Future<String?> getRole() async {
   return prefs.getString('role');
 }
 
-Future<dynamic> postToken(
-    String address, String token, int dormitizenId) async {
+Future<dynamic> postTokenFCM(String fcmtoken) async {
+  String address = "/notification/saveToken";
   final uri = Uri.parse(apiURL + address);
+  String? token = await getToken();
   final response = await http.post(
     uri,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    },
     body: jsonEncode({
-      "fcm_token": token,
-      "dormitizen_id": dormitizenId,
+      "fcm_token": fcmtoken,
     }),
   );
 

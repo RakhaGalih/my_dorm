@@ -52,12 +52,9 @@ class _HomePageAdminState extends State<HomePageAdmin> {
       nama = response['data'][0]['nama'];
 
       // sekalian post token firebase ke BE
-      int dormitizenId = response['data'][0]['dormitizen_id'];
-      dev.log('dormitizenId: $dormitizenId');
       String tokenFirebaseNotification =
           await FirebaseNotificationService.getToken();
-      await postToken(
-          '/notification/saveToken', tokenFirebaseNotification, dormitizenId);
+      await postTokenFCM(tokenFirebaseNotification);
     } catch (e) {
       if (e.toString() == 'Exception: Unauthorized or Forbidden') {
         print('Session expired');
