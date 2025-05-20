@@ -38,8 +38,11 @@ class _LoginPageState extends State<LoginPage> {
       response = await postData("/login", data);
       String token = response['accessToken']; // Ambil token dari response
       await saveToken(token, response['user_type']);
+      print('response login: ${response}');
+
       if (mounted) {
-        if (response['user_type'] == 'senior_resident') {
+        if (response['user_type'] == 'senior_resident' ||
+            response['user_type'] == 'helpdesk') {
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => HomeAdmin()));
         } else if (response['user_type'] == 'dormitizen') {
@@ -50,6 +53,7 @@ class _LoginPageState extends State<LoginPage> {
               MaterialPageRoute(builder: (context) => const PIlihRole()));
         }
       }
+
       print('berhasil login!');
       String? accessToken = await getToken();
       print(accessToken);

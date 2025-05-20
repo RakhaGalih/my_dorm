@@ -15,6 +15,8 @@ import 'package:my_dorm/screens/admin/apps/list/list_riwayat_request_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_statistik_page.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
 import 'package:my_dorm/service/http_service.dart';
+import 'package:my_dorm/service/myfirebasenotification_service.dart';
+import 'dart:developer' as dev;
 
 class HomePageAdmin extends StatefulWidget {
   const HomePageAdmin({
@@ -48,6 +50,11 @@ class _HomePageAdminState extends State<HomePageAdmin> {
       response = await getDataToken("/user", token!);
       print(response);
       nama = response['data'][0]['nama'];
+
+      // sekalian post token firebase ke BE
+      String tokenFirebaseNotification =
+          await FirebaseNotificationService.getToken();
+      await postTokenFCM(tokenFirebaseNotification);
     } catch (e) {
       if (e.toString() == 'Exception: Unauthorized or Forbidden') {
         print('Session expired');
@@ -57,8 +64,8 @@ class _HomePageAdminState extends State<HomePageAdmin> {
           error = "Session expired, silahkan login kembali";
         });
         if (mounted) {
-          Navigator.pushReplacement(context, MaterialPageRoute(
-              builder: (context) => const LoginPage()));
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const LoginPage()));
         }
       }
       setState(() {

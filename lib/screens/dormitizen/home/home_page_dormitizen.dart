@@ -4,6 +4,8 @@ import 'package:my_dorm/components/info_card.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
 import 'package:my_dorm/service/http_service.dart';
+import 'package:my_dorm/service/myfirebasenotification_service.dart';
+import 'dart:developer' as dev;
 
 class HomePageDormitizen extends StatefulWidget {
   const HomePageDormitizen({super.key});
@@ -42,6 +44,11 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
       print(response);
       statusKamar = response['data'][0]['kamar']['status'];
       nama = response['data'][0]['nama'];
+
+      // sekalian post token firebase ke BE
+      String tokenFirebaseNotification =
+          await FirebaseNotificationService.getToken();
+      await postTokenFCM(tokenFirebaseNotification);
     } catch (e) {
       if (e.toString() == 'Exception: Unauthorized or Forbidden') {
         print('Session expired');
@@ -51,8 +58,8 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
           error = "Session expired, silahkan login kembali";
         });
         if (mounted) {
-          Navigator.pushReplacement(context, MaterialPageRoute(
-              builder: (context) => const LoginPage()));
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const LoginPage()));
         }
       }
       setState(() {

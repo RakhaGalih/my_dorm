@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:my_dorm/components/appbar_page.dart';
 import 'package:my_dorm/components/form_date_time_picker.dart';
@@ -20,12 +23,45 @@ class _AddPaketPageState extends State<AddPaketPage> {
   final TextEditingController _namaBarangController = TextEditingController();
   final TextEditingController _kamarController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-
-  final List<Map<String, dynamic>> dormitizenDataList = [];
   String? selectedDormitizen;
-
+  final List<Map<String, dynamic>> dormitizenDataList = [];
   String error = "";
+  String waktu = "";
+  File? gambar;
   bool _showSpinner = false;
+
+  Future<void> _addPaket() async {
+    error = "";
+    setState(() {
+      _showSpinner = true;
+    });
+    dynamic response = {};
+    try {
+      Map<String, String> data = {
+        'status_pengambilan': 'belum',
+        'waktu_tiba': waktu,
+        'dormitizen_id': selectedDormitizen!,
+      };
+      response = await postDataTokenWithImage("/paket", data, gambar);
+      print('berhasil tambah laporan!');
+      if (mounted) {
+        Navigator.pop(context, 'sesuatu');
+      }
+
+      print(response['message']);
+    } catch (e) {
+      setState(() {
+        _showSpinner = false;
+        error = "${response['message']}";
+      });
+      print('Login error: $e');
+      print(response);
+    }
+    setState(() {
+      _showSpinner = false;
+    });
+  }
+
   Future<void> searchDormitizen(String nomorKamar) async {
     error = "";
     setState(() {
