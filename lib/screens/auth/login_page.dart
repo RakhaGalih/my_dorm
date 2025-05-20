@@ -43,13 +43,13 @@ class _LoginPageState extends State<LoginPage> {
       if (mounted) {
         if (response['user_type'] == 'senior_resident' ||
             response['user_type'] == 'helpdesk') {
-          Navigator.push(
+          Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => HomeAdmin()));
         } else if (response['user_type'] == 'dormitizen') {
-          Navigator.push(context,
+          Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => HomeDormitizen()));
         } else {
-          Navigator.push(context,
+          Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => const PIlihRole()));
         }
       }
