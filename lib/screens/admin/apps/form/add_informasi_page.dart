@@ -10,14 +10,14 @@ import 'package:my_dorm/components/gradient_button.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/service/http_service.dart';
 
-class EditInformasiPage extends StatefulWidget {
-  const EditInformasiPage({super.key});
+class AddInformasiPage extends StatefulWidget {
+  const AddInformasiPage({super.key});
 
   @override
-  State<EditInformasiPage> createState() => _EditInformasiPageState();
+  State<AddInformasiPage> createState() => _AddInformasiPageState();
 }
 
-class _EditInformasiPageState extends State<EditInformasiPage> {
+class _AddInformasiPageState extends State<AddInformasiPage> {
   final TextEditingController _judulController = TextEditingController();
   final TextEditingController _deskripsiController = TextEditingController();
 
@@ -41,7 +41,7 @@ class _EditInformasiPageState extends State<EditInformasiPage> {
         'judul': _judulController.text,
         'isi': _deskripsiController.text,
       };
-      response = await postDataTokenWithImage("/berita", data, gambar);
+      response = await postDataTokenWithImage("/informasi", data, gambar);
       print('berhasil tambah laporan!');
 
       print(response['message']);

@@ -29,6 +29,8 @@ class HomePageAdmin extends StatefulWidget {
 
 class _HomePageAdminState extends State<HomePageAdmin> {
   String nama = 'loading...';
+  String kamarTerbuka = '0';
+  String kamarTertutup = '0';
   String error = "";
   bool _showSpinner = false;
 
@@ -37,6 +39,7 @@ class _HomePageAdminState extends State<HomePageAdmin> {
     // TODO: implement initState
     super.initState();
     _getInfo();
+    _getInfoKamar();
   }
 
   void _getInfo() async {
@@ -47,9 +50,9 @@ class _HomePageAdminState extends State<HomePageAdmin> {
     Map<String, dynamic> response = {};
     try {
       String? token = await getToken();
-      response = await getDataToken("/user", token!);
+      response = await getDataToken("/user/me", token!);
       print(response);
-      nama = response['data'][0]['nama'];
+      nama = response['data']['nama'];
 
       // sekalian post token firebase ke BE
       String tokenFirebaseNotification =
@@ -70,10 +73,46 @@ class _HomePageAdminState extends State<HomePageAdmin> {
       }
       setState(() {
         _showSpinner = false;
+      });
+      error = "${response['message']}";
+      print(response);
+    }
+    setState(() {
+      _showSpinner = false;
+    });
+  }
+
+  void _getInfoKamar() async {
+    error = "";
+    setState(() {
+      _showSpinner = true;
+    });
+    Map<String, dynamic> response = {};
+    try {
+      String? token = await getToken();
+      response = await getDataToken("/kamar/status/all", token!);
+      print(response);
+      kamarTerbuka = response['countTerbuka'];
+      kamarTertutup = response['countTertutup'];
+    } catch (e) {
+      if (e.toString() == 'Exception: Unauthorized or Forbidden') {
+        print('Session expired');
+        await removeToken();
+        setState(() {
+          _showSpinner = false;
+          error = "Session expired, silahkan login kembali";
+        });
+        if (mounted) {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const LoginPage()));
+        }
+      }
+      setState(() {
+        _showSpinner = false;
         error = "Email atau Password salah";
       });
       error = "${response['message']}";
-      print('Login error: $e');
+      print('error: $e');
       print(response);
     }
     setState(() {
@@ -156,12 +195,12 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        'Kunci kamar di Asrama',
+                                        'Kunci di Kamar',
                                         style: kSemiBoldTextStyle.copyWith(
                                             fontSize: 14, color: kWhite),
                                       ),
                                       Text(
-                                        '110',
+                                        kamarTerbuka,
                                         style: kBoldTextStyle.copyWith(
                                             fontSize: 45, color: kWhite),
                                       ),
@@ -173,12 +212,12 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        'Kunci kamar di Luar',
+                                        'Kunci di helpdesk',
                                         style: kSemiBoldTextStyle.copyWith(
                                             fontSize: 14, color: kWhite),
                                       ),
                                       Text(
-                                        '50',
+                                        kamarTertutup,
                                         style: kBoldTextStyle.copyWith(
                                             fontSize: 45, color: kWhite),
                                       ),

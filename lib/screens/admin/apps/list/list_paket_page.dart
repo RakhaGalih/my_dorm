@@ -250,6 +250,19 @@ class _ListPaketPageState extends State<ListPaketPage> {
     );
   }
 
+  Future<void> _navigateAndDisplayResult(BuildContext context) async {
+    final result = await Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const AddPaketPage()));
+
+    // Check what was returned and act accordingly
+    if (result != null) {
+      await getPaket();
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -259,10 +272,7 @@ class _ListPaketPageState extends State<ListPaketPage> {
             AppBarPage(
               title: 'Paket',
               onAdd: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AddPaketPage()));
+                _navigateAndDisplayResult(context);
               },
             ),
             Padding(
@@ -331,7 +341,7 @@ class _ListPaketPageState extends State<ListPaketPage> {
                                       },
                                       child: PaketCard(
                                         nomorKamar: pakets_belum[index]
-                                            ['dormitizen']['kamar']['nomor'],
+                                            ['pemilik_paket']['nama'],
                                         paketSampai:
                                             '${formatTanggal(pakets_belum[index]['waktu_tiba'])} (Paket Sampai)',
                                         paketDiambil: pakets_belum[index]
@@ -340,11 +350,11 @@ class _ListPaketPageState extends State<ListPaketPage> {
                                             ? '${formatTanggal(pakets_belum[index]['waktu_diambil'])} (Paket Diambil)'
                                             : '-',
                                         namaDormitizen: pakets_belum[index]
-                                            ['dormitizen']['nama'],
+                                            ['pemilik_paket']['nama'],
                                         status: pakets_belum[index]
                                             ['status_pengambilan'],
                                         pjPaket:
-                                            '${pakets_belum[index]['penerima paket']['nama']} (Pj Paket)',
+                                            '${pakets_belum[index]['penerima_paket']['nama']} (Pj Paket)',
                                       ),
                                     ),
                                     Positioned(

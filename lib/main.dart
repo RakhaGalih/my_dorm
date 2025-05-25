@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:my_dorm/models/data_model.dart';
 import 'package:my_dorm/screens/admin/home_admin.dart';
@@ -18,6 +19,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   tz.initializeTimeZones();
+  await initializeDateFormatting('id_ID');
   final cameraService = CameraService();
   await cameraService.initializeCameras();
   final NotificationService notificationService = NotificationService();
@@ -77,7 +79,7 @@ class _MainAppState extends State<MainApp> {
             inAsyncCall: _showSpinner,
             child: (role == 'dormitizen')
                 ? HomeDormitizen()
-                : (role == 'senior_resident')
+                : (role == 'senior_resident' || role == 'helpdesk')
                     ? HomeAdmin()
                     : const LoginPage(),
           )),

@@ -44,19 +44,25 @@ class _ProfilPageDromitizenState extends State<ProfilPageAdmin> {
     Map<String, dynamic> response = {};
     try {
       String? token = await getToken();
-      response = await getDataToken("/user", token!);
+      response = await getDataToken("/user/me", token!);
       print(response);
-      NIM = response['data'][0]['nim'];
-      status = response['user_type'];
-      nama = response['data'][0]['nama'];
-      username = response['data'][0]['username'];
-      prodi = response['data'][0]['prodi'];
-      agama = response['data'][0]['agama'];
-      noHP = response['data'][0]['no_hp'];
-      noHPOrtu = response['data'][0]['no_hp_ortu'];
+      String ? role = await getRole();
+      if(role == 'helpdesk') {
+        NIM = response['data']['nip'];
+      } else {
+        NIM = response['data']['nim'];
+      }
+      
+      status = role!;
+      nama = response['data']['nama'];
+      username = response['data']['username'];
+      prodi = response['data']['prodi'];
+      agama = response['data']['agama'];
+      noHP = response['data']['no_hp'];
+      noHPOrtu = response['data']['no_hp_ortu'];
       gedung =
-          "${response['data'][0]['kamar']['gedung']['nama']} (${response['data'][0]['kamar']['gedung']['kode']})";
-      noKamar = response['data'][0]['kamar']['nomor'];
+          "${response['data']['kamar']['gedung']['nama']} (${response['data']['kamar']['gedung']['kode']})";
+      noKamar = response['data']['kamar']['nomor'];
     } catch (e) {
       setState(() {
         _showSpinner = false;

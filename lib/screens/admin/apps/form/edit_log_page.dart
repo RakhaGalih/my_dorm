@@ -8,14 +8,14 @@ import 'package:my_dorm/components/gradient_button.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/service/http_service.dart';
 
-class AddLogPage extends StatefulWidget {
-  const AddLogPage({super.key});
+class EditLogPage extends StatefulWidget {
+  const EditLogPage({super.key});
 
   @override
-  State<AddLogPage> createState() => _AddLogPageState();
+  State<EditLogPage> createState() => _EditLogPageState();
 }
 
-class _AddLogPageState extends State<AddLogPage> {
+class _EditLogPageState extends State<EditLogPage> {
   final List<Map<String, dynamic>> dormitizenDataList = [];
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _kamarController = TextEditingController();

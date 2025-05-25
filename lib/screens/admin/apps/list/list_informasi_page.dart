@@ -29,7 +29,7 @@ class _ListInformasiPageState extends State<ListInformasiPage> {
     });
     try {
       String? token = await getToken();
-      var response = await getDataToken('/berita', token!);
+      var response = await getDataToken('/informasi', token!);
       List<Map<String, dynamic>> parsedData = (response['data'] as List)
           .map((item) => item as Map<String, dynamic>)
           .toList();
@@ -51,7 +51,7 @@ class _ListInformasiPageState extends State<ListInformasiPage> {
 
   Future<void> _navigateAndDisplayResult(BuildContext context) async {
     final result = await Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const EditInformasiPage()));
+        MaterialPageRoute(builder: (context) => const AddInformasiPage()));
 
     // Check what was returned and act accordingly
     if (result != null) {

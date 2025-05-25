@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,9 +10,14 @@ import 'package:my_dorm/components/form_textfield.dart';
 import 'package:my_dorm/components/gradient_button.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/service/http_service.dart';
+import 'package:my_dorm/service/image_service.dart';
 
 class EditInformasiPage extends StatefulWidget {
-  const EditInformasiPage({super.key});
+  final Map<String, dynamic> item;
+  const EditInformasiPage({
+    super.key,
+    required this.item,
+  });
 
   @override
   State<EditInformasiPage> createState() => _EditInformasiPageState();
@@ -29,7 +35,13 @@ class _EditInformasiPageState extends State<EditInformasiPage> {
   String error = "";
   bool _showSpinner = false;
 
-  Future<void> _addInformasi() async {
+  @override
+  void initState() {
+    super.initState();
+    gambar = null; // Initialize gambar to null
+  }
+
+  Future<void> _editInformasi() async {
     error = "";
     setState(() {
       _showSpinner = true;
@@ -41,7 +53,7 @@ class _EditInformasiPageState extends State<EditInformasiPage> {
         'judul': _judulController.text,
         'isi': _deskripsiController.text,
       };
-      response = await postDataTokenWithImage("/berita", data, gambar);
+      response = await updateDataTokenWithImage("/informasi", data, gambar);
       print('berhasil tambah laporan!');
 
       print(response['message']);
@@ -78,20 +90,28 @@ class _EditInformasiPageState extends State<EditInformasiPage> {
                       const SizedBox(
                         height: 12,
                       ),
-                      FormPhotoPicker(
-                        title: 'informasi',
-                        onImageSelected: (selectedImage) {
-                          // Handle the selected image here
-                          if (selectedImage != null) {
-                            print('Selected image path: ${selectedImage.path}');
-                          } else {
-                            print('Image cleared');
-                          }
-                          setState(() {
-                            gambar = selectedImage;
-                          });
-                        },
-                      ),
+                      (true)
+                          ? MyNetworkImage(
+                              imageURL:
+                                  '$apiURL/images/informasi/${widget.item['gambar']}',
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            )
+                          : FormPhotoPicker(
+                              title: 'informasi',
+                              onImageSelected: (selectedImage) {
+                                // Handle the selected image here
+                                if (selectedImage != null) {
+                                  print(
+                                      'Selected image path: ${selectedImage.path}');
+                                } else {
+                                  print('Image cleared');
+                                }
+                                setState(() {
+                                  gambar = selectedImage;
+                                });
+                              },
+                            ),
                       FormDropDown(
                           title: 'Kategori',
                           kategoriItems: const [
@@ -120,7 +140,7 @@ class _EditInformasiPageState extends State<EditInformasiPage> {
                               if (selectedKategori!.isNotEmpty &&
                                   gambar != null) {
                                 try {
-                                  await _addInformasi();
+                                  await _editInformasi();
 
                                   // Create the SnackBar
                                   const snackBar = SnackBar(
