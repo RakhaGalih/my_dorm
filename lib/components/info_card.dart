@@ -1,13 +1,19 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:my_dorm/constant/constant.dart';
+import 'package:my_dorm/service/converter.dart';
+import 'package:my_dorm/service/http_service.dart';
 import 'package:my_dorm/service/image_service.dart';
 
 class InformasiCard extends StatefulWidget {
   final Map<String, dynamic> item;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
   const InformasiCard({
     super.key,
     required this.item,
+    this.onEdit,
+    this.onDelete,
   });
 
   @override
@@ -15,7 +21,6 @@ class InformasiCard extends StatefulWidget {
 }
 
 class _InformasiCardState extends State<InformasiCard> {
-
   int _maxLines = 5;
   @override
   Widget build(BuildContext context) {
@@ -40,9 +45,9 @@ class _InformasiCardState extends State<InformasiCard> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('ayay',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(widget.item['updated_at'] ?? 'error',
+                    Text(widget.item['nama_penulis'],
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(getFormattedDate(widget.item['updated_at']) ?? 'error',
                         style:
                             const TextStyle(color: Colors.grey, fontSize: 12)),
                   ],
@@ -63,24 +68,24 @@ class _InformasiCardState extends State<InformasiCard> {
               maxLines: _maxLines,
               overflow: TextOverflow.ellipsis,
             ),
-            if(widget.item['isi'].toString().length > 100)GestureDetector(
-              onTap: () {
-                setState(() {
-                  _maxLines = _maxLines == 5 ? 100 : 5;
-                });
-              },
-              child: Text(
-                (_maxLines == 5)?'Baca Selengkapnya':'Tutup',
-                style:
-                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            if (widget.item['isi'].toString().length > 100)
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _maxLines = _maxLines == 5 ? 100 : 5;
+                  });
+                },
+                child: Text(
+                  (_maxLines == 5) ? 'Baca Selengkapnya' : 'Tutup',
+                  style: const TextStyle(
+                      color: Colors.red, fontWeight: FontWeight.bold),
+                ),
               ),
-            ),
             const SizedBox(height: 10),
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: MyNetworkImage(
-                imageURL:
-                    'https://mydorm-mobile-backend-production.up.railway.app/images/${widget.item['gambar']}',
+                imageURL: '$apiURL/images/informasi/${widget.item['gambar']}',
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),

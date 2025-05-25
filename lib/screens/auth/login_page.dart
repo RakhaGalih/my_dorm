@@ -37,15 +37,15 @@ class _LoginPageState extends State<LoginPage> {
       };
       response = await postData("/login", data);
       String token = response['accessToken']; // Ambil token dari response
-      await saveToken(token, response['user_type']);
+      await saveToken(token, response['role']);
       print('response login: ${response}');
 
       if (mounted) {
-        if (response['user_type'] == 'senior_resident' ||
-            response['user_type'] == 'helpdesk') {
+        if (response['role'] == 'senior_resident' ||
+            response['role'] == 'helpdesk') {
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => HomeAdmin()));
-        } else if (response['user_type'] == 'dormitizen') {
+        } else if (response['role'] == 'dormitizen') {
           Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => HomeDormitizen()));
         } else {

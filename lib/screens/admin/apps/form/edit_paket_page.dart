@@ -6,18 +6,19 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:my_dorm/components/appbar_page.dart';
 import 'package:my_dorm/components/form_date_time_picker.dart';
 import 'package:my_dorm/components/form_photo_picker.dart';
+import 'package:my_dorm/components/form_textfield.dart';
 import 'package:my_dorm/components/gradient_button.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/service/http_service.dart';
 
-class AddPaketPage extends StatefulWidget {
-  const AddPaketPage({super.key});
+class EditPaketPage extends StatefulWidget {
+  const EditPaketPage({super.key});
 
   @override
-  State<AddPaketPage> createState() => _AddPaketPageState();
+  State<EditPaketPage> createState() => _EditPaketPageState();
 }
 
-class _AddPaketPageState extends State<AddPaketPage> {
+class _EditPaketPageState extends State<EditPaketPage> {
   final TextEditingController _namaBarangController = TextEditingController();
   final TextEditingController _kamarController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -28,7 +29,7 @@ class _AddPaketPageState extends State<AddPaketPage> {
   File? gambar;
   bool _showSpinner = false;
 
-  Future<void> _addPaket() async {
+  Future<void> _editPaket() async {
     error = "";
     setState(() {
       _showSpinner = true;
@@ -68,10 +69,10 @@ class _AddPaketPageState extends State<AddPaketPage> {
     try {
       dormitizenDataList.clear();
       String? token = await getToken();
-      var response = await getDataToken('/dormitizen/$nomorKamar', token!);
+      var response = await getDataToken('/user/$nomorKamar', token!);
 
-      if (response['data'] != null) {
-        List<Map<String, dynamic>> dormitizens = (response['data'] as List)
+      if (response['response'] != null) {
+        List<Map<String, dynamic>> dormitizens = (response['response'] as List)
             .map((item) => item as Map<String, dynamic>)
             .toList();
         for (var dormitizen in dormitizens) {
@@ -124,12 +125,6 @@ class _AddPaketPageState extends State<AddPaketPage> {
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
-                        onChanged: (value) async {
-                          // Reset selectedDormitizen when the room number changes
-                          if (_kamarController.text.length == 3) {
-                            await searchDormitizen(_kamarController.text);
-                          }
-                        },
                         decoration:
                             basicInputDecoration("Nomor kamar").copyWith(
                           suffixIcon: IconButton(
@@ -176,17 +171,18 @@ class _AddPaketPageState extends State<AddPaketPage> {
                         onImageSelected: (selectedImage) {
                           // Handle the selected image here
                           if (selectedImage != null) {
-                            gambar = selectedImage;
                             print('Selected image path: ${selectedImage.path}');
                           } else {
                             print('Image cleared');
                           }
                         },
                       ),
+                      FormTextField(
+                          label: 'Nama barang',
+                          controller: _namaBarangController),
                       FormDatePicker(
                         onDateTimeSelected: (selectedDateTime) {
                           // Handle the combined DateTime here
-                          waktu = selectedDateTime.toString();
                           print('Selected DateTime: $selectedDateTime');
                         },
                       ),
@@ -194,21 +190,13 @@ class _AddPaketPageState extends State<AddPaketPage> {
                           ontap: () async {
                             if (_formKey.currentState?.validate() ?? false) {
                               if (selectedDormitizen == null ||
-                                  gambar == null ||
-                                  waktu.isEmpty) {
+                                  selectedDormitizen!.isEmpty) {
                                 setState(() {
-                                  error = "Semua field harus diisi!";
+                                  error = "Pilih dormitizen terlebih dahulu.";
                                 });
-                                print(
-                                    'Selected Dormitizen: $selectedDormitizen');
-                                print('Selected Image: $gambar');
                                 return;
-                              } else {
-                                print(
-                                    'Selected Dormitizen: $selectedDormitizen');
-                                print('Selected Image: $gambar');
-                                await _addPaket();
                               }
+                              await _editPaket();
                               const snackBar = SnackBar(
                                 content: Text('Data berhasil ditambahkan!'),
                               );
@@ -216,6 +204,7 @@ class _AddPaketPageState extends State<AddPaketPage> {
                               // Show the SnackBar
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(snackBar);
+                              Navigator.pop(context);
                             }
                           },
                           title: 'Kirim')

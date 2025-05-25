@@ -17,7 +17,6 @@ class SearchKamarToAddPelanggaran extends StatefulWidget {
 
 class _SearchKamarToAddPelanggaranState
     extends State<SearchKamarToAddPelanggaran> {
-      
   List<Map<String, dynamic>> dormitizens = [];
   final TextEditingController _kamarController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -116,7 +115,7 @@ class _SearchKamarToAddPelanggaranState
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        const AddPelanggaranPage(
+                                        const EditPelanggaranPage(
                                             // Kirim semua data hasil pencarian
                                             ),
                                   ),

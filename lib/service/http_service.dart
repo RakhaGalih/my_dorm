@@ -7,7 +7,7 @@ import 'package:mime/mime.dart';
 import 'package:path/path.dart'; // Added for basename function
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String apiURL = "https://mydorm-mobile-backend-production.up.railway.app";
+const String apiURL = "https://mydorm-mobile-backend-production-5f66.up.railway.app";
 
 Future<Map<String, dynamic>> getDataToken(String address, String token) async {
   final uri = Uri.parse(apiURL + address);
@@ -85,6 +85,60 @@ Future<dynamic> postDataTokenWithImage(
   };
 
   var request = http.MultipartRequest('POST', Uri.parse('$apiURL$endpoint'));
+  request.headers['Authorization'] = 'Bearer $token';
+  var mimeType = lookupMimeType(imageFile!.path);
+  var bytes = await File.fromUri(Uri.parse(imageFile.path)).readAsBytes();
+  http.MultipartFile multipartFile = http.MultipartFile.fromBytes(
+      'gambar', bytes,
+      filename: basename(imageFile.path),
+      contentType: MediaType.parse(mimeType.toString()));
+  request.fields.addAll(data);
+  request.headers.addAll(headers);
+  request.files.add(multipartFile);
+  var streamedResponse = await request.send();
+  var response = await http.Response.fromStream(streamedResponse);
+
+  // Tambahkan field data ke request
+  data.forEach((key, value) {
+    request.fields[key] = value.toString();
+  });
+
+  return _handleResponse(response);
+}
+
+Future<dynamic> updateDataToken(
+    String address, Map<String, dynamic> body) async {
+  final uri = Uri.parse(apiURL + address);
+  String? token = await getToken();
+  final response = await http.patch(
+    uri,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    },
+    body: jsonEncode(body),
+  );
+
+  _handleResponse(response);
+}
+
+// POST request dengan token dan gambar
+Future<dynamic> updateDataTokenWithImage(
+  String endpoint,
+  Map<String, String> data,
+  File? imageFile,
+) async {
+  String? token = await getToken();
+  if (token == null) {
+    throw Exception('Token not found');
+  }
+
+  Map<String, String> headers = {
+    'Authorization': 'Bearer $token',
+    'Content-Type': 'application/json',
+  };
+
+  var request = http.MultipartRequest('PUT', Uri.parse('$apiURL$endpoint'));
   request.headers['Authorization'] = 'Bearer $token';
   var mimeType = lookupMimeType(imageFile!.path);
   var bytes = await File.fromUri(Uri.parse(imageFile.path)).readAsBytes();

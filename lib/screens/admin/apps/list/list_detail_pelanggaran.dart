@@ -6,7 +6,6 @@ import 'package:my_dorm/components/shadow_container.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/screens/admin/apps/form/add_pelanggaran_page.dart';
 import 'package:my_dorm/service/http_service.dart';
-import 'dart:developer' as dev;
 
 class ListDetailPelanggaranPage extends StatefulWidget {
   final String namaDormitizen;
@@ -72,7 +71,7 @@ class _ListDetailPelanggaranPageState extends State<ListDetailPelanggaranPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AddPelanggaranPage(
+                  builder: (context) => const EditPelanggaranPage(
                       // Kirim semua data hasil pencarian
                       ),
                 ),
@@ -86,12 +85,12 @@ class _ListDetailPelanggaranPageState extends State<ListDetailPelanggaranPage> {
                 Expanded(
                   child: Container(
                     height: 50,
-                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: kGrey),
                     ),
-                    child: Row(
+                    child: const Row(
                       children: [
                         Icon(Icons.search),
                         SizedBox(
@@ -102,7 +101,7 @@ class _ListDetailPelanggaranPageState extends State<ListDetailPelanggaranPage> {
                     ),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 10,
                 ),
                 Container(
@@ -112,7 +111,7 @@ class _ListDetailPelanggaranPageState extends State<ListDetailPelanggaranPage> {
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: kGrey),
                     ),
-                    child: Icon(Icons.filter_alt)),
+                    child: const Icon(Icons.filter_alt)),
               ],
             ),
           ),
@@ -213,7 +212,7 @@ class _ListDetailPelanggaranPageState extends State<ListDetailPelanggaranPage> {
                             const SizedBox(height: 4),
                             ClipRRect(
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(8)),
+                                  const BorderRadius.all(Radius.circular(8)),
                               child: Image.asset(
                                 'images/bukti_pelanggaran.png',
                                 width: double.infinity,
@@ -246,12 +245,12 @@ class _ListDetailPelanggaranPageState extends State<ListDetailPelanggaranPage> {
                                 padding: const EdgeInsets.all(15.0),
                                 child: Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       FontAwesomeIcons.pencil,
                                       size: 16,
                                       color: kWhite,
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 5,
                                     ),
                                     Text(
