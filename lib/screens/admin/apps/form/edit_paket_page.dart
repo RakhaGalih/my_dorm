@@ -11,14 +11,14 @@ import 'package:my_dorm/components/gradient_button.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/service/http_service.dart';
 
-class AddPaketPage extends StatefulWidget {
-  const AddPaketPage({super.key});
+class EditPaketPage extends StatefulWidget {
+  const EditPaketPage({super.key});
 
   @override
-  State<AddPaketPage> createState() => _AddPaketPageState();
+  State<EditPaketPage> createState() => _EditPaketPageState();
 }
 
-class _AddPaketPageState extends State<AddPaketPage> {
+class _EditPaketPageState extends State<EditPaketPage> {
   final TextEditingController _namaBarangController = TextEditingController();
   final TextEditingController _kamarController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -29,7 +29,7 @@ class _AddPaketPageState extends State<AddPaketPage> {
   File? gambar;
   bool _showSpinner = false;
 
-  Future<void> _addPaket() async {
+  Future<void> _editPaket() async {
     error = "";
     setState(() {
       _showSpinner = true;
@@ -190,15 +190,13 @@ class _AddPaketPageState extends State<AddPaketPage> {
                           ontap: () async {
                             if (_formKey.currentState?.validate() ?? false) {
                               if (selectedDormitizen == null ||
-                                  _namaBarangController.text.isEmpty ||
-                                  gambar == null) {
+                                  selectedDormitizen!.isEmpty) {
                                 setState(() {
-                                  error = "Semua field harus diisi!";
+                                  error = "Pilih dormitizen terlebih dahulu.";
                                 });
                                 return;
-                              } else {
-                                await _addPaket();
                               }
+                              await _editPaket();
                               const snackBar = SnackBar(
                                 content: Text('Data berhasil ditambahkan!'),
                               );

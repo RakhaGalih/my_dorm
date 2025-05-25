@@ -1,66 +1,29 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:my_dorm/components/appbar_page.dart';
 import 'package:my_dorm/components/form_date_time_picker.dart';
-import 'package:my_dorm/components/form_photo_picker.dart';
-import 'package:my_dorm/components/form_textfield.dart';
+import 'package:my_dorm/components/form_drop_down.dart';
 import 'package:my_dorm/components/gradient_button.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/service/http_service.dart';
 
-class AddPaketPage extends StatefulWidget {
-  const AddPaketPage({super.key});
+class AddLogPage extends StatefulWidget {
+  const AddLogPage({super.key});
 
   @override
-  State<AddPaketPage> createState() => _AddPaketPageState();
+  State<AddLogPage> createState() => _AddLogPageState();
 }
 
-class _AddPaketPageState extends State<AddPaketPage> {
-  final TextEditingController _namaBarangController = TextEditingController();
-  final TextEditingController _kamarController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  String? selectedDormitizen;
+class _AddLogPageState extends State<AddLogPage> {
   final List<Map<String, dynamic>> dormitizenDataList = [];
-  String error = "";
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _kamarController = TextEditingController();
   String waktu = "";
-  File? gambar;
+  String? selectedDormitizen;
+  String? selectedKategori;
+  String error = "";
   bool _showSpinner = false;
-
-  Future<void> _addPaket() async {
-    error = "";
-    setState(() {
-      _showSpinner = true;
-    });
-    dynamic response = {};
-    try {
-      Map<String, String> data = {
-        'status_pengambilan': 'belum',
-        'waktu_tiba': waktu,
-        'dormitizen_id': selectedDormitizen!,
-      };
-      response = await postDataTokenWithImage("/paket", data, gambar);
-      print('berhasil tambah laporan!');
-      if (mounted) {
-        Navigator.pop(context, 'sesuatu');
-      }
-
-      print(response['message']);
-    } catch (e) {
-      setState(() {
-        _showSpinner = false;
-        error = "${response['message']}";
-      });
-      print('Login error: $e');
-      print(response);
-    }
-    setState(() {
-      _showSpinner = false;
-    });
-  }
-
   Future<void> searchDormitizen(String nomorKamar) async {
     error = "";
     setState(() {
@@ -107,7 +70,7 @@ class _AddPaketPageState extends State<AddPaketPage> {
         inAsyncCall: _showSpinner,
         child: Column(
           children: [
-            const AppBarPage(title: 'Tambah Paket'),
+            const AppBarPage(title: 'Tambah Log Manual'),
             Expanded(
                 child: SingleChildScrollView(
               child: Padding(
@@ -125,8 +88,7 @@ class _AddPaketPageState extends State<AddPaketPage> {
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
-                        decoration:
-                            basicInputDecoration("Nomor kamar").copyWith(
+                        decoration: basicInputDecoration("Nomor kamar").copyWith(
                           suffixIcon: IconButton(
                             onPressed: () async {
                               await searchDormitizen(_kamarController.text);
@@ -166,20 +128,14 @@ class _AddPaketPageState extends State<AddPaketPage> {
                           },
                         ),
                       ),
-                      FormPhotoPicker(
-                        title: 'paket',
-                        onImageSelected: (selectedImage) {
-                          // Handle the selected image here
-                          if (selectedImage != null) {
-                            print('Selected image path: ${selectedImage.path}');
-                          } else {
-                            print('Image cleared');
-                          }
+                      FormDropDown(
+                        kategoriItems: const ['Masuk', 'Keluar'],
+                        title: 'Status',
+                        onItemSelected: (selectedItem) {
+                          // Handle the selected item here
+                          print('Selected item: $selectedItem');
                         },
                       ),
-                      FormTextField(
-                          label: 'Nama barang',
-                          controller: _namaBarangController),
                       FormDatePicker(
                         onDateTimeSelected: (selectedDateTime) {
                           // Handle the combined DateTime here
@@ -187,26 +143,23 @@ class _AddPaketPageState extends State<AddPaketPage> {
                         },
                       ),
                       GradientButton(
-                          ontap: () async {
+                          ontap: () {
                             if (_formKey.currentState?.validate() ?? false) {
-                              if (selectedDormitizen == null ||
-                                  _namaBarangController.text.isEmpty ||
-                                  gambar == null) {
-                                setState(() {
-                                  error = "Semua field harus diisi!";
-                                });
-                                return;
-                              } else {
-                                await _addPaket();
+                              try {
+                                //_addInformasi();
+        
+                                // Create the SnackBar
+                                const snackBar = SnackBar(
+                                  content: Text('Data berhasil ditambahkan!'),
+                                );
+        
+                                // Show the SnackBar
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(snackBar);
+                                Navigator.pop(context, 'sesuatu');
+                              } catch (e) {
+                                print(e);
                               }
-                              const snackBar = SnackBar(
-                                content: Text('Data berhasil ditambahkan!'),
-                              );
-
-                              // Show the SnackBar
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackBar);
-                              Navigator.pop(context);
                             }
                           },
                           title: 'Kirim')

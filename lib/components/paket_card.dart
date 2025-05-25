@@ -42,75 +42,81 @@ class PaketCard extends StatelessWidget {
           Image.asset('images/paket.png', width: 80, height: 80),
           const SizedBox(height: 5),
           const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Kamar $nomorKamar",
-                style: kBoldTextStyle.copyWith(fontSize: 15),
-              ),
-              const SizedBox(height: 5),
-              if (status == "belum")
-                Row(
-                  children: [
-                    const Icon(
-                      FontAwesomeIcons.locationPin,
-                      size: 18,
-                      color: kRed,
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      "Helpdesk",
-                      style: kSemiBoldTextStyle.copyWith(
-                          fontSize: 12, color: kRed),
-                    )
-                  ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Kamar $nomorKamar",
+                  style: kBoldTextStyle.copyWith(fontSize: 15),
                 ),
-              const SizedBox(height: 5),
-              Row(
-                children: [
-                  const Icon(
-                    FontAwesomeIcons.solidCircleUser,
-                    size: 18,
+                const SizedBox(height: 5),
+                if (status == "belum")
+                  Row(
+                    children: [
+                      const Icon(
+                        FontAwesomeIcons.locationPin,
+                        size: 18,
+                        color: kRed,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        "Helpdesk",
+                        style: kSemiBoldTextStyle.copyWith(
+                            fontSize: 12, color: kRed),
+                      )
+                    ],
                   ),
-                  const SizedBox(width: 5),
-                  Text(
-                    namaDormitizen,
-                    style: kSemiBoldTextStyle.copyWith(fontSize: 12),
-                  )
-                ],
-              ),
-              const SizedBox(height: 5),
-              Row(
-                children: [
-                  const Icon(Icons.timer, size: 18, color: kGrey),
-                  const SizedBox(width: 5),
-                  Text(
-                    paketSampai,
-                    style:
-                        kSemiBoldTextStyle.copyWith(fontSize: 12, color: kGrey),
-                  )
-                ],
-              ),
-              const SizedBox(height: 5),
-              if (status == "sudah")
+                const SizedBox(height: 5),
                 Row(
                   children: [
                     const Icon(
-                      Icons.timer,
+                      FontAwesomeIcons.solidCircleUser,
                       size: 18,
-                      color: kGrey,
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      paketDiambil,
-                      style: kSemiBoldTextStyle.copyWith(
-                          fontSize: 12, color: kGrey),
+                      namaDormitizen,
+                      style: kSemiBoldTextStyle.copyWith(fontSize: 12),
                     )
                   ],
                 ),
-              const SizedBox(height: 5),
-            ],
+                const SizedBox(height: 5),
+                Row(
+                  children: [
+                    const Icon(Icons.timer, size: 18, color: kGrey),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        paketSampai,
+                        style:
+                            kSemiBoldTextStyle.copyWith(fontSize: 12, color: kGrey),
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(height: 5),
+                if (status == "sudah")
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.timer,
+                        size: 18,
+                        color: kGrey,
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          paketDiambil,
+                          style: kSemiBoldTextStyle.copyWith(
+                              fontSize: 12, color: kGrey),
+                        ),
+                      )
+                    ],
+                  ),
+                const SizedBox(height: 5),
+              ],
+            ),
           )
         ],
       ),

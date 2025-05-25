@@ -26,16 +26,12 @@ class MyNetworkImage extends StatelessWidget {
         return child;
       } else {
         return Center(
-          child: SizedBox(
-            width: width,
-            height: height,
-            child: CircularProgressIndicator(
-              color: kMain,
-              value: loadingProgress.expectedTotalBytes != null
-                  ? loadingProgress.cumulativeBytesLoaded /
-                      (loadingProgress.expectedTotalBytes ?? 1)
-                  : null,
-            ),
+          child: CircularProgressIndicator(
+            color: kMain,
+            value: loadingProgress.expectedTotalBytes != null
+                ? loadingProgress.cumulativeBytesLoaded /
+                    (loadingProgress.expectedTotalBytes ?? 1)
+                : null,
           ),
         );
       }

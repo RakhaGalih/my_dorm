@@ -12,14 +12,14 @@ import 'package:my_dorm/components/gradient_button.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/service/http_service.dart';
 
-class EditPelanggaranPage extends StatefulWidget {
-  const EditPelanggaranPage({super.key});
+class AddPelanggaranPage extends StatefulWidget {
+  const AddPelanggaranPage({super.key});
 
   @override
-  State<EditPelanggaranPage> createState() => _EditPelanggaranPageState();
+  State<AddPelanggaranPage> createState() => _AddPelanggaranPageState();
 }
 
-class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
+class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
   final TextEditingController _kategoriController = TextEditingController();
   final TextEditingController _kamarController = TextEditingController();
   final TextEditingController _waktuController = TextEditingController();
@@ -33,7 +33,7 @@ class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
   String error = "";
   bool _showSpinner = false;
 
-  Future<void> _addPelanggaran() async {
+  Future<void> _editPelanggaran() async {
     error = "";
     setState(() {
       _showSpinner = true;
@@ -212,7 +212,7 @@ class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
                                   waktu != "" &&
                                   gambar != null) {
                                 try {
-                                  _addPelanggaran();
+                                  _editPelanggaran();
 
                                   // Create the SnackBar
                                   const snackBar = SnackBar(

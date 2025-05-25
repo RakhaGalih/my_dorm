@@ -103,7 +103,7 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AddPelanggaranPage(
+                  builder: (context) => const EditPelanggaranPage(
                       // Kirim semua data hasil pencarian
                       ),
                 ),
