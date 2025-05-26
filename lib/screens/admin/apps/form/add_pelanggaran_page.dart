@@ -141,6 +141,12 @@ class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
                             }
                             return null;
                           },
+                          onChanged: (value) async {
+                            // Reset selectedDormitizen when the room number changes
+                            if (_kamarController.text.length == 3) {
+                              await searchDormitizen(_kamarController.text);
+                            }
+                          },
                         ),
                         const SizedBox(height: 12),
                         Padding(

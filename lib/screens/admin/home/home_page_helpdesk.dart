@@ -8,7 +8,6 @@ import 'package:my_dorm/components/request_box.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/models/request_model.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_informasi_page.dart';
-import 'package:my_dorm/screens/admin/apps/list/list_keterlambatan_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_paket_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_pelanggaran_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_riwayat_request_page.dart';
@@ -16,18 +15,17 @@ import 'package:my_dorm/screens/admin/apps/list/list_statistik_page.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
 import 'package:my_dorm/service/http_service.dart';
 import 'package:my_dorm/service/myfirebasenotification_service.dart';
-import 'dart:developer' as dev;
 
-class HomePageAdmin extends StatefulWidget {
-  const HomePageAdmin({
+class HomePageHelpdesk extends StatefulWidget {
+  const HomePageHelpdesk({
     super.key,
   });
 
   @override
-  State<HomePageAdmin> createState() => _HomePageAdminState();
+  State<HomePageHelpdesk> createState() => _HomePageHelpdeskState();
 }
 
-class _HomePageAdminState extends State<HomePageAdmin> {
+class _HomePageHelpdeskState extends State<HomePageHelpdesk> {
   String nama = 'loading...';
   String kamarTerbuka = '0';
   String kamarTertutup = '0';
@@ -346,15 +344,11 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                                 pushWidget: ListStatistikPage(),
                               ),
                               AppsIcon(
-                                icon: FluentIcons.chat_warning_24_filled,
-                                title: 'Keterlambatan',
-                                pushWidget: ListKeterlambatanPage(),
-                              ),
-                              AppsIcon(
                                 icon: FluentIcons.warning_12_filled,
                                 title: 'Pelanggaran',
                                 pushWidget: ListPelanggaranPage(),
-                              )
+                              ),
+                              Expanded(child: SizedBox())
                             ],
                           ),
                         ],

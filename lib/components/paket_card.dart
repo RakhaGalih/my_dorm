@@ -1,27 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_dorm/constant/constant.dart';
+import 'package:my_dorm/service/converter.dart';
+import 'package:my_dorm/service/http_service.dart';
+import 'package:my_dorm/service/image_service.dart';
 
 class PaketCard extends StatelessWidget {
-  final String namaDormitizen;
-  final String nomorKamar;
-  final String paketSampai;
-  final String paketDiambil;
-  final String status;
-  final String pjPaket;
+  final Map<String, dynamic> paket;
 
   const PaketCard({
     super.key,
-    required this.namaDormitizen,
-    required this.nomorKamar,
-    required this.paketSampai,
-    required this.paketDiambil,
-    required this.status,
-    required this.pjPaket,
+    required this.paket,
   });
+
+
 
   @override
   Widget build(BuildContext context) {
+    print("PaketCard: $paket");
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 5),
       padding: const EdgeInsets.all(5),
@@ -39,7 +35,12 @@ class PaketCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Image.asset('images/paket.png', width: 80, height: 80),
+          MyNetworkImage(
+            imageURL: '$apiURL/images/paket/${paket['gambar']}',
+            width: 80,
+            height: 80,
+            fit: BoxFit.cover,
+          ),
           const SizedBox(height: 5),
           const SizedBox(width: 10),
           Expanded(
@@ -47,11 +48,11 @@ class PaketCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Kamar $nomorKamar",
+                  "Kamar ${paket['pemilik_paket']['nama'] ?? 'Tidak diketahui'}",
                   style: kBoldTextStyle.copyWith(fontSize: 15),
                 ),
                 const SizedBox(height: 5),
-                if (status == "belum")
+                if ((paket['status_pengambilan'] ?? 'belum')== "belum")
                   Row(
                     children: [
                       const Icon(
@@ -76,7 +77,7 @@ class PaketCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      namaDormitizen,
+                      paket['pemilik_paket']['nama'] ?? 'Tidak diketahui',
                       style: kSemiBoldTextStyle.copyWith(fontSize: 12),
                     )
                   ],
@@ -88,15 +89,16 @@ class PaketCard extends StatelessWidget {
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
-                        paketSampai,
-                        style:
-                            kSemiBoldTextStyle.copyWith(fontSize: 12, color: kGrey),
+                        getFormattedDate(paket['waktu_tiba'] ?? '') ??
+                            "Belum diambil",
+                        style: kSemiBoldTextStyle.copyWith(
+                            fontSize: 12, color: kGrey),
                       ),
                     )
                   ],
                 ),
                 const SizedBox(height: 5),
-                if (status == "sudah")
+                if ((paket['status_pengambilan'] ?? 'belum') == "sudah")
                   Row(
                     children: [
                       const Icon(
@@ -107,7 +109,7 @@ class PaketCard extends StatelessWidget {
                       const SizedBox(width: 5),
                       Expanded(
                         child: Text(
-                          paketDiambil,
+                          '${paket['penerima_paket']['nama'] ?? 'Tidak diketahui'} (PJ Paket)',
                           style: kSemiBoldTextStyle.copyWith(
                               fontSize: 12, color: kGrey),
                         ),
