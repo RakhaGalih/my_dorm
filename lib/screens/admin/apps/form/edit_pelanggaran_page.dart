@@ -12,14 +12,14 @@ import 'package:my_dorm/components/gradient_button.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/service/http_service.dart';
 
-class AddPelanggaranPage extends StatefulWidget {
-  const AddPelanggaranPage({super.key});
+class EditPelanggaranPage extends StatefulWidget {
+  const EditPelanggaranPage({super.key});
 
   @override
-  State<AddPelanggaranPage> createState() => _AddPelanggaranPageState();
+  State<EditPelanggaranPage> createState() => _EditPelanggaranPageState();
 }
 
-class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
+class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
   final TextEditingController _kategoriController = TextEditingController();
   final TextEditingController _kamarController = TextEditingController();
   final TextEditingController _waktuController = TextEditingController();

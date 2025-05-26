@@ -115,7 +115,7 @@ class _SearchKamarToAddPelanggaranState
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        const EditPelanggaranPage(
+                                        const AddPelanggaranPage(
                                             // Kirim semua data hasil pencarian
                                             ),
                                   ),
