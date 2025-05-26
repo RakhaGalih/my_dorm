@@ -7,9 +7,11 @@ import 'package:my_dorm/screens/admin/apps/form/add_pelanggaran_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_detail_pelanggaran.dart';
 import 'package:my_dorm/service/http_service.dart';
 import 'package:my_dorm/service/image_service.dart';
+import 'dart:developer' as dev;
 
 class ListPelanggaranPage extends StatefulWidget {
-  const ListPelanggaranPage({super.key});
+  final String noKamar;
+  const ListPelanggaranPage({super.key, required this.noKamar});
 
   @override
   State<ListPelanggaranPage> createState() => _ListPelanggaranPageState();
@@ -20,28 +22,35 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
   List<Map<String, dynamic>> dormitizens = [];
   int max_pelanggaran = 9;
   String error = "";
+  String kamarId = "";
   bool _showSpinner = false;
 
   @override
   void initState() {
     super.initState();
-    getPelanggaran();
     getDormitizenbyKamar();
+    getPelanggaranByKamar();
   }
 
   Future<void> getDormitizenbyKamar() async {
     error = "";
     try {
       String? token = await getToken();
-      var response = await getDataToken('/user/101', token!);
-      List<Map<String, dynamic>> parsedData = (response['response'] as List)
+      var response =
+          await getDataToken('/dormitizen/${widget.noKamar}', token!);
+      List<Map<String, dynamic>> parsedData = (response['data'] as List)
           .map((item) => item as Map<String, dynamic>)
           .toList();
       setState(() {
         for (int i = 0; i < parsedData.length; i++) {
-          dormitizens
-              .add({'nama': parsedData[i]['nama'], 'jml_pelanggaran': 0});
+          dormitizens.add({
+            'nama': parsedData[i]['nama'],
+            'dormitizen_id': parsedData[i]['dormitizen_id'],
+            'jml_pelanggaran': 0,
+            'gambar': parsedData[i]['gambar'],
+          });
         }
+        kamarId = parsedData[0]['kamar']['kamar_id'];
       });
     } catch (e) {
       print(e);
@@ -56,14 +65,14 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
     return DateFormat('dd MMM yyyy, HH:mm').format(dateTime);
   }
 
-  Future<void> getPelanggaran() async {
+  Future<void> getPelanggaranByKamar() async {
     error = "";
     setState(() {
       _showSpinner = true;
     });
     try {
       String? token = await getToken();
-      var response = await getDataToken('/pelanggaran', token!);
+      var response = await getDataToken('/pelanggaran/kamar/$kamarId', token!);
       List<Map<String, dynamic>> parsedData = (response['data'] as List)
           .map((item) => item as Map<String, dynamic>)
           .toList();
@@ -77,17 +86,21 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
         error = "Error: $e";
       });
     } finally {
-      setState(() {
-        _showSpinner = false;
-        for (int i = 0; i < pelanggarans.length; i++) {
-          for (int j = 0; j < dormitizens.length; j++) {
-            if ((pelanggarans[i]['dormitizen']['nama'] ==
-                    dormitizens[j]['nama']) &&
-                (dormitizens[j]['jml_pelanggaran'] < max_pelanggaran)) {
+      dev.log('Pelanggaran length: ${pelanggarans.length}');
+      for (int i = 0; i < pelanggarans.length; i++) {
+        dev.log('Pelanggaran ${i + 1}: ${pelanggarans[i]}');
+        for (int j = 0; j < dormitizens.length; j++) {
+          if ((pelanggarans[i]['pelanggar']['nama'] ==
+                  dormitizens[j]['nama']) &&
+              (dormitizens[j]['jml_pelanggaran'] < max_pelanggaran)) {
+            setState(() {
               dormitizens[j]['jml_pelanggaran'] += 1;
-            }
+            });
           }
         }
+      }
+      setState(() {
+        _showSpinner = false;
       });
     }
   }
@@ -98,12 +111,12 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
       body: Column(
         children: [
           AppBarPage(
-            title: 'Daftar Pelanggaran',
+            title: 'Pelanggaran Kamar ${widget.noKamar}',
             onAdd: () async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const EditPelanggaranPage(
+                  builder: (context) => const AddPelanggaranPage(
                       // Kirim semua data hasil pencarian
                       ),
                 ),
@@ -179,7 +192,8 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => ListDetailPelanggaranPage(
-                                namaDormitizen: dormitizen['nama']),
+                                dormitizenId: dormitizen['dormitizen_id'],
+                                noKamar: widget.noKamar),
                           ),
                         );
                       },
@@ -188,11 +202,16 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: MyNetworkImage(
-                              imageURL:
-                                  'https://mydorm-mobile-backend-production.up.railway.app/images/${pelanggarans[index]['gambar']}',
-                              width: 100,
-                              height: 100,
+                            // child: MyNetworkImage(
+                            //   imageURL: 'https://picsum.photos/100',
+                            //   width: 100,
+                            //   height: 100,
+                            //   fit: BoxFit.cover,
+                            // ),
+                            child: Image.asset(
+                              'images/dormitizen.png',
+                              width: 50,
+                              height: 50,
                               fit: BoxFit.cover,
                             ),
                           ),
