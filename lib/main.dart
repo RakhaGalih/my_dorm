@@ -4,7 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:my_dorm/models/data_model.dart';
-import 'package:my_dorm/screens/admin/home_admin.dart';
+import 'package:my_dorm/screens/admin/nav_helpdesk.dart';
+import 'package:my_dorm/screens/admin/nav_sr.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
 import 'package:my_dorm/screens/dormitizen/home_dormitizen.dart';
 import 'package:my_dorm/service/camera_service.dart';
@@ -79,9 +80,11 @@ class _MainAppState extends State<MainApp> {
             inAsyncCall: _showSpinner,
             child: (role == 'dormitizen')
                 ? HomeDormitizen()
-                : (role == 'senior_resident' || role == 'helpdesk')
-                    ? HomeAdmin()
-                    : const LoginPage(),
+                : (role == 'senior_resident')
+                    ? NavbarSR()
+                    : (role == 'helpdesk')
+                        ? NavBarHelpdesk()
+                        : const LoginPage(),
           )),
     );
   }

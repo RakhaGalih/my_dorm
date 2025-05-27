@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:my_dorm/components/appbar_home.dart';
 import 'package:my_dorm/components/paket_card.dart';
 import 'package:my_dorm/constant/constant.dart';
-import 'package:my_dorm/models/paket_model.dart';
 import 'package:my_dorm/service/http_service.dart';
 
 class PaketPageDormitizen extends StatefulWidget {
@@ -152,20 +151,7 @@ class _PaketPageDormitizenState extends State<PaketPageDormitizen> {
                     children: List.generate(
                         pakets.length,
                         (index) => PaketCard(
-                              nomorKamar: pakets[index]['dormitizen']['kamar']
-                                  ['nomor'],
-                              paketSampai:
-                                  '${formatTanggal(pakets[index]['waktu_tiba'])} (Paket Sampai)',
-                              paketDiambil: pakets[index]
-                                          ['status_pengambilan'] ==
-                                      'sudah'
-                                  ? '${formatTanggal(pakets[index]['waktu_diambil'])} (Paket Diambil)'
-                                  : '-',
-                              namaDormitizen: pakets[index]['dormitizen']
-                                  ['nama'],
-                              status: pakets[index]['status_pengambilan'],
-                              pjPaket:
-                                  '${pakets[index]['penerima paket']['nama']} (Pj Paket)',
+                              paket: pakets[index],
                             )),
                   ),
                 ],
