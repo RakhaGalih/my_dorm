@@ -7,6 +7,7 @@ import 'package:my_dorm/components/request_box.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/models/request_model.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_informasi_page.dart';
+import 'package:my_dorm/screens/admin/apps/list/list_my_log.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_paket_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_riwayat_request_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_statistik_page.dart';
@@ -344,12 +345,12 @@ class _HomePageSRState extends State<HomePageSR> {
                               AppsIcon(
                                 icon: FontAwesomeIcons.bookmark,
                                 title: 'My Log',
-                                pushWidget: ListRiwayatRequestPage(),
+                                pushWidget: ListMyLog(),
                               ),
                               AppsIcon(
                                 icon: FontAwesomeIcons.boxArchive,
                                 title: 'My Paket',
-                                pushWidget: ListPaketPage (),
+                                pushWidget: ListPaketPage(),
                               ),
                             ],
                           ),
