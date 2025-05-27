@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:my_dorm/components/appbar_page.dart';
 import 'package:my_dorm/components/filter_button.dart';
-import 'package:my_dorm/components/search_container.dart';
-import 'package:my_dorm/components/shadow_container.dart';
-import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/components/log_box.dart';
+import 'package:my_dorm/components/search_container.dart';
 import 'package:my_dorm/models/request_model.dart';
-import 'package:my_dorm/screens/admin/apps/form/add_log_page.dart';
 
-class ListRiwayatRequestPage extends StatelessWidget {
-  const ListRiwayatRequestPage({super.key});
+class ListMyLog extends StatelessWidget {
+  const ListMyLog({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,14 +19,10 @@ class ListRiwayatRequestPage extends StatelessWidget {
     ];
     return Scaffold(
         body: Column(children: [
-      AppBarPage(
+      const AppBarPage(
         title: 'Riwayat Request',
-        onAdd: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const AddLogPage()));
-        },
       ),
-      SizedBox(height: 20),
+      const SizedBox(height: 20),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Row(
@@ -49,7 +42,6 @@ class ListRiwayatRequestPage extends StatelessWidget {
                     nama: logs[index].name,
                     type: logs[index].type,
                     date: logs[index].date,
-                    onEdit: (){},
                   )))
     ]));
   }

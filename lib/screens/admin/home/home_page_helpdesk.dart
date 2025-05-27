@@ -343,12 +343,7 @@ class _HomePageHelpdeskState extends State<HomePageHelpdesk> {
                                 // pushWidget: UnavailableFeaturesPage(),
                                 pushWidget: ListStatistikPage(),
                               ),
-                              AppsIcon(
-                                icon: FluentIcons.warning_12_filled,
-                                title: 'Pelanggaran',
-                                pushWidget: ListPelanggaranPage(),
-                              ),
-                              Expanded(child: SizedBox())
+                              Expanded(flex: 2,child: SizedBox())
                             ],
                           ),
                         ],
