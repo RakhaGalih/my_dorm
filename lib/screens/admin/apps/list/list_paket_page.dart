@@ -340,21 +340,7 @@ class _ListPaketPageState extends State<ListPaketPage> {
                                         showPaketDetail(pakets_belum[index]);
                                       },
                                       child: PaketCard(
-                                        nomorKamar: pakets_belum[index]
-                                            ['pemilik_paket']['nama'],
-                                        paketSampai:
-                                            '${formatTanggal(pakets_belum[index]['waktu_tiba'])} (Paket Sampai)',
-                                        paketDiambil: pakets_belum[index]
-                                                    ['status_pengambilan'] ==
-                                                'sudah'
-                                            ? '${formatTanggal(pakets_belum[index]['waktu_diambil'])} (Paket Diambil)'
-                                            : '-',
-                                        namaDormitizen: pakets_belum[index]
-                                            ['pemilik_paket']['nama'],
-                                        status: pakets_belum[index]
-                                            ['status_pengambilan'],
-                                        pjPaket:
-                                            '${pakets_belum[index]['penerima_paket']['nama']} (Pj Paket)',
+                                        paket: pakets_belum[index],
                                       ),
                                     ),
                                     Positioned(
@@ -416,21 +402,7 @@ class _ListPaketPageState extends State<ListPaketPage> {
                                       showPaketDetail(pakets_sudah[index]);
                                     },
                                     child: PaketCard(
-                                      nomorKamar: pakets_sudah[index]
-                                          ['dormitizen']['kamar']['nomor'],
-                                      paketSampai:
-                                          '${formatTanggal(pakets_sudah[index]['waktu_tiba'])} (Paket Sampai)',
-                                      paketDiambil: pakets_sudah[index]
-                                                  ['status_pengambilan'] ==
-                                              'sudah'
-                                          ? '${formatTanggal(pakets_sudah[index]['waktu_diambil'])} (Paket Diambil)'
-                                          : '-',
-                                      namaDormitizen: pakets_sudah[index]
-                                          ['dormitizen']['nama'],
-                                      status: pakets_sudah[index]
-                                          ['status_pengambilan'],
-                                      pjPaket:
-                                          '${pakets_sudah[index]['penerima paket']['nama']} (Pj Paket)',
+                                      paket: pakets_sudah[index],
                                     ),
                                   )),
                         ),

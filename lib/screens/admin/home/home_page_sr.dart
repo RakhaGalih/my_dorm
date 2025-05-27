@@ -18,16 +18,16 @@ import 'package:my_dorm/service/http_service.dart';
 import 'package:my_dorm/service/myfirebasenotification_service.dart';
 import 'dart:developer' as dev;
 
-class HomePageAdmin extends StatefulWidget {
-  const HomePageAdmin({
+class HomePageSR extends StatefulWidget {
+  const HomePageSR({
     super.key,
   });
 
   @override
-  State<HomePageAdmin> createState() => _HomePageAdminState();
+  State<HomePageSR> createState() => _HomePageSRState();
 }
 
-class _HomePageAdminState extends State<HomePageAdmin> {
+class _HomePageSRState extends State<HomePageSR> {
   String nama = 'loading...';
   String kamarTerbuka = '0';
   String kamarTertutup = '0';

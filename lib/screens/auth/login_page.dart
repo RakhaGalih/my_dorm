@@ -3,7 +3,8 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:my_dorm/components/gradient_button.dart';
 import 'package:my_dorm/components/login_textfield.dart';
 import 'package:my_dorm/constant/constant.dart';
-import 'package:my_dorm/screens/admin/home_admin.dart';
+import 'package:my_dorm/screens/admin/nav_helpdesk.dart';
+import 'package:my_dorm/screens/admin/nav_sr.dart';
 import 'package:my_dorm/screens/auth/pilih_role.dart';
 import 'package:my_dorm/screens/auth/register_page.dart';
 import 'package:my_dorm/screens/dormitizen/home_dormitizen.dart';
@@ -38,13 +39,15 @@ class _LoginPageState extends State<LoginPage> {
       response = await postData("/login", data);
       String token = response['accessToken']; // Ambil token dari response
       await saveToken(token, response['role']);
-      print('response login: ${response}');
+      print('response login: $response');
 
       if (mounted) {
-        if (response['role'] == 'senior_resident' ||
-            response['role'] == 'helpdesk') {
+        if (response['role'] == 'senior_resident') {
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => HomeAdmin()));
+              context, MaterialPageRoute(builder: (context) => NavbarSR()));
+        } else if (response['role'] == 'helpdesk') {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => NavBarHelpdesk()));
         } else if (response['role'] == 'dormitizen') {
           Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => HomeDormitizen()));

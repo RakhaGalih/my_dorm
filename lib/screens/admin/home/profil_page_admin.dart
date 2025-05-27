@@ -27,6 +27,7 @@ class _ProfilPageDromitizenState extends State<ProfilPageAdmin> {
   String gedung = 'loading...';
   String noKamar = 'loading...';
   String error = "";
+  String? role;
   bool _showSpinner = false;
 
   @override
@@ -46,23 +47,23 @@ class _ProfilPageDromitizenState extends State<ProfilPageAdmin> {
       String? token = await getToken();
       response = await getDataToken("/user/me", token!);
       print(response);
-      String ? role = await getRole();
-      if(role == 'helpdesk') {
+      role = await getRole();
+      if (role == 'helpdesk') {
         NIM = response['data']['nip'];
+        gedung =
+          "${response['data']['gedung']['nama']} (${response['data']['gedung']['kode']})";
       } else {
         NIM = response['data']['nim'];
-      }
-      
-      status = role!;
-      nama = response['data']['nama'];
-      username = response['data']['username'];
-      prodi = response['data']['prodi'];
-      agama = response['data']['agama'];
-      noHP = response['data']['no_hp'];
-      noHPOrtu = response['data']['no_hp_ortu'];
-      gedung =
+        nama = response['data']['nama'];
+        prodi = response['data']['prodi'];
+        agama = response['data']['agama'];
+        noHP = response['data']['no_hp'];
+        noHPOrtu = response['data']['no_hp_ortu'];
+        noKamar = response['data']['kamar']['nomor'];
+        gedung =
           "${response['data']['kamar']['gedung']['nama']} (${response['data']['kamar']['gedung']['kode']})";
-      noKamar = response['data']['kamar']['nomor'];
+      }
+      status = role!;
     } catch (e) {
       setState(() {
         _showSpinner = false;
@@ -182,13 +183,17 @@ class _ProfilPageDromitizenState extends State<ProfilPageAdmin> {
                     children: [
                       ProfileDesc(title: 'NIM', value: NIM),
                       ProfileDesc(title: 'Status', value: status),
-                      ProfileDesc(title: 'Username', value: username),
-                      ProfileDesc(title: 'Prodi', value: prodi),
-                      ProfileDesc(title: 'Agama', value: agama),
-                      ProfileDesc(title: 'No HP', value: noHP),
-                      ProfileDesc(title: 'No HP Ortu', value: noHPOrtu),
+                      if (!(role == 'helpdesk'))
+                        ProfileDesc(title: 'Prodi', value: prodi),
+                      if (!(role == 'helpdesk'))
+                        ProfileDesc(title: 'Agama', value: agama),
+                      if (!(role == 'helpdesk'))
+                        ProfileDesc(title: 'No HP', value: noHP),
+                      if (!(role == 'helpdesk'))
+                        ProfileDesc(title: 'No HP Ortu', value: noHPOrtu),
                       ProfileDesc(title: 'Gedung', value: gedung),
-                      ProfileDesc(title: 'No kamar', value: noKamar),
+                      if (!(role == 'helpdesk'))
+                        ProfileDesc(title: 'No kamar', value: noKamar),
                     ],
                   ),
                 ),

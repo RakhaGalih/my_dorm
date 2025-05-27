@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_dorm/components/role_card.dart';
 import 'package:my_dorm/constant/constant.dart';
-import 'package:my_dorm/screens/admin/home_admin.dart';
+import 'package:my_dorm/screens/admin/nav_sr.dart';
 import 'package:my_dorm/screens/dormitizen/home_dormitizen.dart';
 
 class PIlihRole extends StatelessWidget {
@@ -59,10 +59,8 @@ class PIlihRole extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => HomeAdmin()));
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => NavbarSR()));
                     },
                     child: RoleCard(
                       width: width,
