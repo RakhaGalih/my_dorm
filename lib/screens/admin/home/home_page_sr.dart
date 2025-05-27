@@ -350,11 +350,11 @@ class _HomePageSRState extends State<HomePageSR> {
                                 title: 'Keterlambatan',
                                 pushWidget: ListKeterlambatanPage(),
                               ),
-                              AppsIcon(
-                                icon: FluentIcons.warning_12_filled,
-                                title: 'Pelanggaran',
-                                pushWidget: ListPelanggaranPage(),
-                              )
+                              // AppsIcon(
+                              //   icon: FluentIcons.warning_12_filled,
+                              //   title: 'Pelanggaran',
+                              //   pushWidget: ListPelanggaranPage(),
+                              // )
                             ],
                           ),
                         ],

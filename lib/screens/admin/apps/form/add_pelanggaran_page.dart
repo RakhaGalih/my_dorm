@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -12,14 +12,14 @@ import 'package:my_dorm/components/gradient_button.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/service/http_service.dart';
 
-class EditPelanggaranPage extends StatefulWidget {
-  const EditPelanggaranPage({super.key});
+class AddPelanggaranPage extends StatefulWidget {
+  const AddPelanggaranPage({super.key});
 
   @override
-  State<EditPelanggaranPage> createState() => _EditPelanggaranPageState();
+  State<AddPelanggaranPage> createState() => _AddPelanggaranPageState();
 }
 
-class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
+class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
   final TextEditingController _kategoriController = TextEditingController();
   final TextEditingController _kamarController = TextEditingController();
   final TextEditingController _waktuController = TextEditingController();
@@ -31,6 +31,7 @@ class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
   String? selectedKategori;
 
   String error = "";
+  String infoSnackbar = "";
   bool _showSpinner = false;
 
   Future<void> _addPelanggaran() async {
@@ -46,8 +47,12 @@ class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
         'dormitizen_id': selectedDormitizen!,
       };
       response = await postDataTokenWithImage("/pelanggaran", data, gambar);
+      dev.log('Response from add pelanggaran: $response');
       print('berhasil tambah laporan!');
       if (mounted) {
+        setState(() {
+          infoSnackbar = 'Pelanggaran berhasil ditambahkan!';
+        });
         Navigator.pop(context, 'sesuatu');
       }
 
@@ -55,6 +60,7 @@ class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
     } catch (e) {
       setState(() {
         _showSpinner = false;
+        infoSnackbar = 'Pelanggaran gagal ditambahkan!';
         error = "${response['message']}";
       });
       print('Login error: $e');
@@ -73,10 +79,10 @@ class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
     try {
       dormitizenDataList.clear();
       String? token = await getToken();
-      var response = await getDataToken('/user/$nomorKamar', token!);
+      var response = await getDataToken('/dormitizen/$nomorKamar', token!);
 
-      if (response['response'] != null) {
-        List<Map<String, dynamic>> dormitizens = (response['response'] as List)
+      if (response['data'] != null) {
+        List<Map<String, dynamic>> dormitizens = (response['data'] as List)
             .map((item) => item as Map<String, dynamic>)
             .toList();
         for (var dormitizen in dormitizens) {
@@ -87,6 +93,7 @@ class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
         }
         print('Data Dormitizen: $dormitizens');
       } else {
+        print('error: ${response['message']}');
         setState(() {
           error = "Data dormitizen tidak ditemukan.";
         });
@@ -130,6 +137,7 @@ class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
                               basicInputDecoration("Nomor kamar").copyWith(
                             suffixIcon: IconButton(
                               onPressed: () async {
+                                print('Searching for dormitizen...');
                                 await searchDormitizen(_kamarController.text);
                               },
                               icon: const Icon(Icons.search),
@@ -221,8 +229,8 @@ class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
                                   _addPelanggaran();
 
                                   // Create the SnackBar
-                                  const snackBar = SnackBar(
-                                    content: Text('Data berhasil ditambahkan!'),
+                                  var snackBar = SnackBar(
+                                    content: Text(infoSnackbar),
                                   );
 
                                   // Show the SnackBar

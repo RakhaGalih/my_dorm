@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_dorm/components/appbar_page.dart';
 import 'package:my_dorm/constant/constant.dart';
+import 'package:my_dorm/screens/admin/apps/list/list_pelanggaran_page.dart';
 import 'package:my_dorm/service/http_service.dart';
 
 class ListKamarPageAdmin extends StatefulWidget {
@@ -106,8 +107,7 @@ class _ListKamarPageAdminState extends State<ListKamarPageAdmin> {
                       const SizedBox(height: 10),
                       Expanded(
                         child: GridView.builder(
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 4,
@@ -118,22 +118,32 @@ class _ListKamarPageAdminState extends State<ListKamarPageAdmin> {
                           itemBuilder: (context, index) {
                             if (index < kamarLantai.length) {
                               var kamar = kamarLantai[index];
-                              return Container(
-                                decoration: BoxDecoration(
-                                  color: (kamar['status'] == 'terkunci')
-                                      ? kGray
-                                      : kRed,
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '${kamar['nomor']}',
-                                    textAlign: TextAlign.center,
-                                    style: kBoldTextStyle.copyWith(
-                                      fontSize: 24,
-                                      color: (kamar['status'] == 'terkunci')
-                                      ? Colors.black.withOpacity(0.4)
-                                      : kWhite,
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              ListPelanggaranPage(
+                                                  noKamar: kamar['nomor'])));
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: (kamar['status'] == 'terkunci')
+                                        ? kGray
+                                        : kRed,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '${kamar['nomor']}',
+                                      textAlign: TextAlign.center,
+                                      style: kBoldTextStyle.copyWith(
+                                        fontSize: 24,
+                                        color: (kamar['status'] == 'terkunci')
+                                            ? Colors.black.withOpacity(0.4)
+                                            : kWhite,
+                                      ),
                                     ),
                                   ),
                                 ),
