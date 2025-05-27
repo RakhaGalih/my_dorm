@@ -1,5 +1,4 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_dorm/components/appbar_home.dart';
@@ -8,15 +7,13 @@ import 'package:my_dorm/components/request_box.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/models/request_model.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_informasi_page.dart';
-import 'package:my_dorm/screens/admin/apps/list/list_keterlambatan_page.dart';
+import 'package:my_dorm/screens/admin/apps/list/list_my_log.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_paket_page.dart';
-import 'package:my_dorm/screens/admin/apps/list/list_pelanggaran_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_riwayat_request_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_statistik_page.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
 import 'package:my_dorm/service/http_service.dart';
 import 'package:my_dorm/service/myfirebasenotification_service.dart';
-import 'dart:developer' as dev;
 
 class HomePageSR extends StatefulWidget {
   const HomePageSR({
@@ -346,15 +343,15 @@ class _HomePageSRState extends State<HomePageSR> {
                                 pushWidget: ListStatistikPage(),
                               ),
                               AppsIcon(
-                                icon: FluentIcons.chat_warning_24_filled,
-                                title: 'Keterlambatan',
-                                pushWidget: ListKeterlambatanPage(),
+                                icon: FontAwesomeIcons.bookmark,
+                                title: 'My Log',
+                                pushWidget: ListMyLog(),
                               ),
-                              // AppsIcon(
-                              //   icon: FluentIcons.warning_12_filled,
-                              //   title: 'Pelanggaran',
-                              //   pushWidget: ListPelanggaranPage(),
-                              // )
+                              AppsIcon(
+                                icon: FontAwesomeIcons.boxArchive,
+                                title: 'My Paket',
+                                pushWidget: ListPaketPage(),
+                              ),
                             ],
                           ),
                         ],
