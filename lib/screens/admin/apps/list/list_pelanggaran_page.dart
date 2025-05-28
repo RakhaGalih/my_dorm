@@ -28,7 +28,6 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
   @override
   void initState() {
     super.initState();
-    getDormitizenbyKamar();
     getPelanggaranByKamar();
   }
 
@@ -52,6 +51,7 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
         }
         kamarId = parsedData[0]['kamar']['kamar_id'];
       });
+      dev.log('Kamar ID: $kamarId');
     } catch (e) {
       print(e);
       setState(() {
@@ -70,13 +70,13 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
     setState(() {
       _showSpinner = true;
     });
+    await getDormitizenbyKamar();
     try {
       String? token = await getToken();
       var response = await getDataToken('/pelanggaran/kamar/$kamarId', token!);
       List<Map<String, dynamic>> parsedData = (response['data'] as List)
           .map((item) => item as Map<String, dynamic>)
           .toList();
-      print(response);
       setState(() {
         pelanggarans = parsedData;
       });
@@ -88,7 +88,7 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
     } finally {
       dev.log('Pelanggaran length: ${pelanggarans.length}');
       for (int i = 0; i < pelanggarans.length; i++) {
-        dev.log('Pelanggaran ${i + 1}: ${pelanggarans[i]}');
+        print('Pelanggaran ${i + 1}: ${pelanggarans[i]}');
         for (int j = 0; j < dormitizens.length; j++) {
           if ((pelanggarans[i]['pelanggar']['nama'] ==
                   dormitizens[j]['nama']) &&

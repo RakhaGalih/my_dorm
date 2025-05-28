@@ -233,7 +233,7 @@ class _ListDetailPelanggaranPageState extends State<ListDetailPelanggaranPage> {
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(
-                                  width: 100,
+                                  width: double.maxFinite,
                                   height: 100,
                                   color: Colors.grey[300],
                                   child: const Icon(Icons.image_not_supported),

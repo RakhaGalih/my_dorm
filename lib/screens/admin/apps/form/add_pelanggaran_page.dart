@@ -41,21 +41,25 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
     });
     dynamic response = {};
     try {
+      dev.log('gambar: ${gambar?.path}');
       Map<String, String> data = {
         'kategori': selectedKategori!,
         'waktu': waktu,
         'dormitizen_id': selectedDormitizen!,
       };
-      response = await postDataTokenWithImage("/pelanggaran", data, gambar);
+      dev.log('Data to be sent: $data');
+      response = await postDataTokenWithFile("/pelanggaran", data, gambar);
       dev.log('Response from add pelanggaran: $response');
-      print('berhasil tambah laporan!');
       if (mounted) {
         setState(() {
           infoSnackbar = 'Pelanggaran berhasil ditambahkan!';
         });
         Navigator.pop(context, 'sesuatu');
+      } else {
+        setState(() {
+          infoSnackbar = 'Gagal menambahkan pelanggaran';
+        });
       }
-
       print(response['message']);
     } catch (e) {
       setState(() {
