@@ -54,7 +54,6 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
         setState(() {
           infoSnackbar = 'Pelanggaran berhasil ditambahkan!';
         });
-        Navigator.pop(context, 'sesuatu');
       } else {
         setState(() {
           infoSnackbar = 'Gagal menambahkan pelanggaran';
@@ -194,7 +193,7 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
                             'Vape',
                             'Alkohol',
                             'Barang Terlarang',
-                            'Membawa Lawab Jenis ke dalam Kamar',
+                            'Membawa Lawan Jenis ke dalam Kamar',
                             'Membawa Teman dari luar Gedung Asrama',
                           ],
                           onItemSelected: (selectedItem) {
@@ -224,13 +223,13 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
                           },
                         ),
                         GradientButton(
-                          ontap: () {
+                          ontap: () async {
                             if (_formKey.currentState?.validate() ?? false) {
                               if (selectedDormitizen!.isNotEmpty &&
                                   waktu != "" &&
                                   gambar != null) {
                                 try {
-                                  _addPelanggaran();
+                                  await _addPelanggaran();
 
                                   // Create the SnackBar
                                   var snackBar = SnackBar(
@@ -240,7 +239,7 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
                                   // Show the SnackBar
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(snackBar);
-                                  Navigator.pop(context, 'sesuatu');
+                                  Navigator.pop(context, 'success');
                                 } catch (e) {
                                   print(e);
                                 }

@@ -198,6 +198,43 @@ Future<dynamic> updateDataTokenWithImage(
   return _handleResponse(response);
 }
 
+// UPDATE data token dengan File
+Future<dynamic> updateDataTokenWithFile(
+  String endpoint,
+  Map<String, String> data,
+  File? imageFile,
+) async {
+  String? token = await getToken();
+  if (token == null) {
+    throw Exception('Token not found');
+  }
+
+  Map<String, String> headers = {
+    'Authorization': 'Bearer $token',
+    'Content-Type': 'application/json',
+  };
+
+  var request = http.MultipartRequest('PUT', Uri.parse('$apiURL$endpoint'));
+  request.headers['Authorization'] = 'Bearer $token';
+  var mimeType = lookupMimeType(imageFile!.path);
+  var bytes = await File.fromUri(Uri.parse(imageFile.path)).readAsBytes();
+  http.MultipartFile multipartFile = http.MultipartFile.fromBytes('file', bytes,
+      filename: basename(imageFile.path),
+      contentType: MediaType.parse(mimeType.toString()));
+  request.fields.addAll(data);
+  request.headers.addAll(headers);
+  request.files.add(multipartFile);
+  var streamedResponse = await request.send();
+  var response = await http.Response.fromStream(streamedResponse);
+
+  // Tambahkan field data ke request
+  data.forEach((key, value) {
+    request.fields[key] = value.toString();
+  });
+
+  return _handleResponse(response);
+}
+
 // Fungsi untuk menangani response
 dynamic _handleResponse(http.Response response) {
   if (response.statusCode == 200 || response.statusCode == 201) {
@@ -263,4 +300,19 @@ Future<dynamic> postTokenFCM(String fcmtoken) async {
   );
 
   _handleResponse(response);
+}
+
+// delete request dengan token
+Future<dynamic> deleteDataToken(String endpoint) async {
+  final uri = Uri.parse('$apiURL$endpoint');
+  String? token = await getToken();
+
+  final response = await http.delete(
+    uri,
+    headers: <String, String>{
+      'Authorization': 'Bearer $token',
+    },
+  );
+
+  return _handleResponse(response);
 }

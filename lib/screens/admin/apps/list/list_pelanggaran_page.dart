@@ -31,6 +31,15 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
     getPelanggaranByKamar();
   }
 
+  Future<void> refreshData() async {
+    setState(() {
+      _showSpinner = true;
+      dormitizens.clear();
+      pelanggarans.clear();
+    });
+    await getPelanggaranByKamar();
+  }
+
   Future<void> getDormitizenbyKamar() async {
     error = "";
     try {
@@ -113,14 +122,15 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
           AppBarPage(
             title: 'Pelanggaran Kamar ${widget.noKamar}',
             onAdd: () async {
-              Navigator.push(
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AddPelanggaranPage(
-                      // Kirim semua data hasil pencarian
-                      ),
+                  builder: (context) => const AddPelanggaranPage(),
                 ),
               );
+              if (result != null) {
+                refreshData();
+              }
             },
           ),
           Padding(
@@ -168,6 +178,13 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
                 color: kMain,
               )),
             )
+          else if (dormitizens.isEmpty)
+            Center(
+              child: Text(
+                "Tidak ada Dormitizen di kamar ini",
+                style: kMediumTextStyle.copyWith(color: Colors.grey),
+              ),
+            )
           else if (error.isNotEmpty)
             Center(
               child: Text(
@@ -187,8 +204,8 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: ShadowContainer(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => ListDetailPelanggaranPage(
@@ -196,6 +213,8 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
                                 noKamar: widget.noKamar),
                           ),
                         );
+
+                        refreshData();
                       },
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,

@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:my_dorm/components/appbar_page.dart';
+import 'package:my_dorm/components/gradient_button.dart';
+import 'package:my_dorm/components/outline_button.dart';
 import 'package:my_dorm/components/shadow_container.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/screens/admin/apps/form/add_pelanggaran_page.dart';
+import 'package:my_dorm/screens/admin/apps/form/edit_pelanggaran_page.dart';
 import 'package:my_dorm/service/http_service.dart';
+import 'package:my_dorm/service/image_service.dart';
 
 class ListDetailPelanggaranPage extends StatefulWidget {
   final String dormitizenId;
@@ -27,6 +31,14 @@ class _ListDetailPelanggaranPageState extends State<ListDetailPelanggaranPage> {
   void initState() {
     super.initState();
     getPelanggaranByUserId();
+  }
+
+  Future<void> refreshData() async {
+    setState(() {
+      _showSpinner = true;
+      pelanggarans.clear();
+    });
+    await getPelanggaranByUserId();
   }
 
   String formatTanggal(String tanggal) {
@@ -59,6 +71,78 @@ class _ListDetailPelanggaranPageState extends State<ListDetailPelanggaranPage> {
     }
   }
 
+  void _deletePelanggaran(String pelanggaranId) async {
+    setState(() {
+      _showSpinner = true;
+    });
+    try {
+      var response = await deleteDataToken('/pelanggaran/$pelanggaranId');
+      if (response['message'] == 'Pelanggaran berhasil dihapus') {
+        setState(() {
+          pelanggarans.removeWhere(
+              (pelanggaran) => pelanggaran['pelanggaran_id'] == pelanggaranId);
+        });
+        Navigator.pop(context);
+      } else {
+        setState(() {
+          error = "Gagal menghapus pelanggaran";
+        });
+      }
+    } catch (e) {
+      print(e);
+      setState(() {
+        error = "Error: $e";
+      });
+    } finally {
+      setState(() {
+        _showSpinner = false;
+      });
+    }
+  }
+
+  void _showDialogDelete(String pelanggaranId) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Konfirmasi Hapus'),
+          backgroundColor: kWhite,
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Ingin menghapus pelanggaran ini?'),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: GradientButton(
+                        ontap: () {
+                          _deletePelanggaran(pelanggaranId);
+                        },
+                        title: "IYA",
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlineButton(
+                        ontap: () {
+                          Navigator.pop(context);
+                        },
+                        title: "TIDAK",
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,14 +152,15 @@ class _ListDetailPelanggaranPageState extends State<ListDetailPelanggaranPage> {
           AppBarPage(
             title: 'Detail Pelanggaran',
             onAdd: () async {
-              Navigator.push(
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AddPelanggaranPage(
-                      // Kirim semua data hasil pencarian
-                      ),
+                  builder: (context) => const AddPelanggaranPage(),
                 ),
               );
+              if (result != null) {
+                refreshData();
+              }
             },
           ),
           Padding(
@@ -157,8 +242,8 @@ class _ListDetailPelanggaranPageState extends State<ListDetailPelanggaranPage> {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: ShadowContainer(
-                    onTap: () {
-                      // Tambahkan aksi ketika item diklik
+                    onLongPress: () {
+                      _showDialogDelete(pelanggaran['pelanggaran_id']);
                     },
                     child: Stack(children: [
                       Column(
@@ -225,20 +310,12 @@ class _ListDetailPelanggaranPageState extends State<ListDetailPelanggaranPage> {
                           ClipRRect(
                             borderRadius:
                                 const BorderRadius.all(Radius.circular(8)),
-                            child: Image.asset(
-                              pelanggaran['gambar'] ??
-                                  'images/bukti_pelanggaran.png',
+                            child: MyNetworkImage(
+                              imageURL:
+                                  '$apiURL/images/pelanggaran/${pelanggaran['gambar']}',
                               width: double.infinity,
                               height: 100,
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  width: double.maxFinite,
-                                  height: 100,
-                                  color: Colors.grey[300],
-                                  child: const Icon(Icons.image_not_supported),
-                                );
-                              },
                             ),
                           ),
                         ],
@@ -247,7 +324,23 @@ class _ListDetailPelanggaranPageState extends State<ListDetailPelanggaranPage> {
                         top: 1,
                         right: 1,
                         child: GestureDetector(
-                          onTap: () {},
+                          onTap: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditPelanggaranPage(
+                                  dormitizenName: pelanggaran['pelanggar']
+                                      ['nama'],
+                                  pelanggaranId: pelanggaran['pelanggaran_id'],
+                                  dormitizenId: widget.dormitizenId,
+                                  noKamar: widget.noKamar,
+                                  kategori: pelanggaran['kategori'],
+                                  waktu: pelanggaran['waktu'],
+                                ),
+                              ),
+                            );
+                            await refreshData();
+                          },
                           child: Container(
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
