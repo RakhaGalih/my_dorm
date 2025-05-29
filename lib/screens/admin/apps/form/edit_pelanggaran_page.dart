@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -13,7 +13,20 @@ import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/service/http_service.dart';
 
 class EditPelanggaranPage extends StatefulWidget {
-  const EditPelanggaranPage({super.key});
+  final String noKamar;
+  final String dormitizenId;
+  final String pelanggaranId;
+  final String kategori;
+  final String waktu;
+  final String dormitizenName;
+  const EditPelanggaranPage(
+      {super.key,
+      required this.noKamar,
+      required this.dormitizenId,
+      required this.pelanggaranId,
+      required this.kategori,
+      required this.waktu,
+      required this.dormitizenName});
 
   @override
   State<EditPelanggaranPage> createState() => _EditPelanggaranPageState();
@@ -21,17 +34,32 @@ class EditPelanggaranPage extends StatefulWidget {
 
 class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
   final TextEditingController _kategoriController = TextEditingController();
+  final TextEditingController _DormitizenController = TextEditingController();
   final TextEditingController _kamarController = TextEditingController();
   final TextEditingController _waktuController = TextEditingController();
   File? gambar;
   final List<Map<String, dynamic>> dormitizenDataList = [];
   final _formKey = GlobalKey<FormState>();
   String waktu = "";
-  String? selectedDormitizen;
   String? selectedKategori;
 
   String error = "";
+  String infoSnackbar = "Pelanggaran berhasil diubah!";
   bool _showSpinner = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _DormitizenController.text = widget.dormitizenName;
+
+    _kamarController.text = widget.noKamar;
+    // waktu = widget.waktu;
+    // DateTime dateTime = DateTime.parse(widget.waktu).toLocal();
+    // _waktuController.text = DateFormat('hh:mm a').format(dateTime);
+
+    // _kategoriController.text = widget.kategori;
+    // selectedKategori = widget.kategori;
+  }
 
   Future<void> _editPelanggaran() async {
     error = "";
@@ -40,21 +68,31 @@ class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
     });
     dynamic response = {};
     try {
+      dev.log('gambar: ${gambar?.path}');
       Map<String, String> data = {
         'kategori': selectedKategori!,
         'waktu': waktu,
-        'dormitizen_id': selectedDormitizen!,
+        'dormitizen_id': widget.dormitizenId,
       };
-      response = await postDataTokenWithImage("/pelanggaran", data, gambar);
-      print('berhasil tambah laporan!');
+      dev.log('Data to be sent: $data');
+      dev.log('Pelanggaran ID: ${widget.pelanggaranId}');
+      response = await updateDataTokenWithFile(
+          "/pelanggaran/${widget.pelanggaranId}", data, gambar);
+      dev.log('Response from edit pelanggaran: $response');
       if (mounted) {
-        Navigator.pop(context, 'sesuatu');
+        setState(() {
+          infoSnackbar = 'Pelanggaran berhasil diubah!';
+        });
+      } else {
+        setState(() {
+          infoSnackbar = 'Gagal merubah pelanggaran';
+        });
       }
-
       print(response['message']);
     } catch (e) {
       setState(() {
         _showSpinner = false;
+        infoSnackbar = 'Pelanggaran gagal diubah!';
         error = "${response['message']}";
       });
       print('Login error: $e');
@@ -65,44 +103,6 @@ class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
     });
   }
 
-  Future<void> searchDormitizen(String nomorKamar) async {
-    error = "";
-    setState(() {
-      _showSpinner = true;
-    });
-    try {
-      dormitizenDataList.clear();
-      String? token = await getToken();
-      var response = await getDataToken('/user/$nomorKamar', token!);
-
-      if (response['response'] != null) {
-        List<Map<String, dynamic>> dormitizens = (response['response'] as List)
-            .map((item) => item as Map<String, dynamic>)
-            .toList();
-        for (var dormitizen in dormitizens) {
-          dormitizenDataList.add({
-            'id': dormitizen['dormitizen_id'],
-            'nama': dormitizen['nama'],
-          });
-        }
-        print('Data Dormitizen: $dormitizens');
-      } else {
-        setState(() {
-          error = "Data dormitizen tidak ditemukan.";
-        });
-      }
-    } catch (e) {
-      print(e);
-      setState(() {
-        error = "Error: $e";
-      });
-    } finally {
-      setState(() {
-        _showSpinner = false;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,7 +111,7 @@ class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
         inAsyncCall: _showSpinner,
         child: Column(
           children: [
-            const AppBarPage(title: 'Tambah Pelanggaran'),
+            const AppBarPage(title: 'Edit Pelanggaran'),
             Expanded(
               child: SingleChildScrollView(
                 child: Padding(
@@ -121,51 +121,23 @@ class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
                     child: Column(
                       children: [
                         TextFormField(
+                          enabled: false,
                           controller: _kamarController,
                           keyboardType: TextInputType.number,
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
                           ],
                           decoration:
-                              basicInputDecoration("Nomor kamar").copyWith(
-                            suffixIcon: IconButton(
-                              onPressed: () async {
-                                await searchDormitizen(_kamarController.text);
-                              },
-                              icon: const Icon(Icons.search),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Nomor kamar tidak boleh kosong';
-                            }
-                            return null;
-                          },
+                              basicInputDecoration("Nomor kamar").copyWith(),
                         ),
                         const SizedBox(height: 12),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 20),
-                          child: DropdownButtonFormField<String>(
-                            style: kMediumTextStyle.copyWith(
-                                fontSize: 16, color: Colors.black),
+                          child: TextFormField(
+                            enabled: false,
+                            controller: _DormitizenController,
                             decoration:
-                                basicInputDecoration("Pilih Dormitizen"),
-                            value: selectedDormitizen,
-                            icon: const Icon(Icons.arrow_drop_down),
-                            isExpanded: true,
-                            items: dormitizenDataList
-                                .map((Map<String, dynamic> dormitizen) {
-                              return DropdownMenuItem<String>(
-                                value: dormitizen['id'].toString(),
-                                child: Text(dormitizen['nama']),
-                              );
-                            }).toList(),
-                            onChanged: (newValue) {
-                              setState(() {
-                                selectedDormitizen = newValue;
-                              });
-                              print('Selected Dormitizen: $selectedDormitizen');
-                            },
+                                basicInputDecoration("Dormitizen").copyWith(),
                           ),
                         ),
                         FormDropDown(
@@ -176,7 +148,7 @@ class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
                             'Vape',
                             'Alkohol',
                             'Barang Terlarang',
-                            'Membawa Lawab Jenis ke dalam Kamar',
+                            'Membawa Lawan Jenis ke dalam Kamar',
                             'Membawa Teman dari luar Gedung Asrama',
                           ],
                           onItemSelected: (selectedItem) {
@@ -208,15 +180,13 @@ class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
                         GradientButton(
                           ontap: () {
                             if (_formKey.currentState?.validate() ?? false) {
-                              if (selectedDormitizen!.isNotEmpty &&
-                                  waktu != "" &&
-                                  gambar != null) {
+                              if (waktu != "" && gambar != null) {
                                 try {
                                   _editPelanggaran();
 
                                   // Create the SnackBar
-                                  const snackBar = SnackBar(
-                                    content: Text('Data berhasil ditambahkan!'),
+                                  var snackBar = SnackBar(
+                                    content: Text(infoSnackbar),
                                   );
 
                                   // Show the SnackBar
@@ -226,15 +196,12 @@ class _EditPelanggaranPageState extends State<EditPelanggaranPage> {
                                 } catch (e) {
                                   print(e);
                                 }
-                              } else {
-                                print(waktu);
-                                print(selectedDormitizen);
-                              }
+                              } else {}
                             } else {
                               print('Form is invalid');
                             }
                           },
-                          title: 'Tambah Pelanggaran',
+                          title: 'Simpan Perubahan',
                         ),
                       ],
                     ),

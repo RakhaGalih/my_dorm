@@ -28,8 +28,16 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
   @override
   void initState() {
     super.initState();
-    getDormitizenbyKamar();
     getPelanggaranByKamar();
+  }
+
+  Future<void> refreshData() async {
+    setState(() {
+      _showSpinner = true;
+      dormitizens.clear();
+      pelanggarans.clear();
+    });
+    await getPelanggaranByKamar();
   }
 
   Future<void> getDormitizenbyKamar() async {
@@ -52,6 +60,7 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
         }
         kamarId = parsedData[0]['kamar']['kamar_id'];
       });
+      dev.log('Kamar ID: $kamarId');
     } catch (e) {
       print(e);
       setState(() {
@@ -70,13 +79,13 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
     setState(() {
       _showSpinner = true;
     });
+    await getDormitizenbyKamar();
     try {
       String? token = await getToken();
       var response = await getDataToken('/pelanggaran/kamar/$kamarId', token!);
       List<Map<String, dynamic>> parsedData = (response['data'] as List)
           .map((item) => item as Map<String, dynamic>)
           .toList();
-      print(response);
       setState(() {
         pelanggarans = parsedData;
       });
@@ -88,7 +97,7 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
     } finally {
       dev.log('Pelanggaran length: ${pelanggarans.length}');
       for (int i = 0; i < pelanggarans.length; i++) {
-        dev.log('Pelanggaran ${i + 1}: ${pelanggarans[i]}');
+        print('Pelanggaran ${i + 1}: ${pelanggarans[i]}');
         for (int j = 0; j < dormitizens.length; j++) {
           if ((pelanggarans[i]['pelanggar']['nama'] ==
                   dormitizens[j]['nama']) &&
@@ -113,14 +122,15 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
           AppBarPage(
             title: 'Pelanggaran Kamar ${widget.noKamar}',
             onAdd: () async {
-              Navigator.push(
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AddPelanggaranPage(
-                      // Kirim semua data hasil pencarian
-                      ),
+                  builder: (context) => const AddPelanggaranPage(),
                 ),
               );
+              if (result != null) {
+                refreshData();
+              }
             },
           ),
           Padding(
@@ -168,6 +178,13 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
                 color: kMain,
               )),
             )
+          else if (dormitizens.isEmpty)
+            Center(
+              child: Text(
+                "Tidak ada Dormitizen di kamar ini",
+                style: kMediumTextStyle.copyWith(color: Colors.grey),
+              ),
+            )
           else if (error.isNotEmpty)
             Center(
               child: Text(
@@ -187,8 +204,8 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: ShadowContainer(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => ListDetailPelanggaranPage(
@@ -196,6 +213,8 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
                                 noKamar: widget.noKamar),
                           ),
                         );
+
+                        refreshData();
                       },
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,

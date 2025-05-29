@@ -41,21 +41,24 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
     });
     dynamic response = {};
     try {
+      dev.log('gambar: ${gambar?.path}');
       Map<String, String> data = {
         'kategori': selectedKategori!,
         'waktu': waktu,
         'dormitizen_id': selectedDormitizen!,
       };
-      response = await postDataTokenWithImage("/pelanggaran", data, gambar);
+      dev.log('Data to be sent: $data');
+      response = await postDataTokenWithFile("/pelanggaran", data, gambar);
       dev.log('Response from add pelanggaran: $response');
-      print('berhasil tambah laporan!');
       if (mounted) {
         setState(() {
           infoSnackbar = 'Pelanggaran berhasil ditambahkan!';
         });
-        Navigator.pop(context, 'sesuatu');
+      } else {
+        setState(() {
+          infoSnackbar = 'Gagal menambahkan pelanggaran';
+        });
       }
-
       print(response['message']);
     } catch (e) {
       setState(() {
@@ -190,7 +193,7 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
                             'Vape',
                             'Alkohol',
                             'Barang Terlarang',
-                            'Membawa Lawab Jenis ke dalam Kamar',
+                            'Membawa Lawan Jenis ke dalam Kamar',
                             'Membawa Teman dari luar Gedung Asrama',
                           ],
                           onItemSelected: (selectedItem) {
@@ -220,13 +223,13 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
                           },
                         ),
                         GradientButton(
-                          ontap: () {
+                          ontap: () async {
                             if (_formKey.currentState?.validate() ?? false) {
                               if (selectedDormitizen!.isNotEmpty &&
                                   waktu != "" &&
                                   gambar != null) {
                                 try {
-                                  _addPelanggaran();
+                                  await _addPelanggaran();
 
                                   // Create the SnackBar
                                   var snackBar = SnackBar(
@@ -236,7 +239,7 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
                                   // Show the SnackBar
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(snackBar);
-                                  Navigator.pop(context, 'sesuatu');
+                                  Navigator.pop(context, 'success');
                                 } catch (e) {
                                   print(e);
                                 }
