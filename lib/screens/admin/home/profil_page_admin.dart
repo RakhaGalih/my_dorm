@@ -51,18 +51,19 @@ class _ProfilPageDromitizenState extends State<ProfilPageAdmin> {
       if (role == 'helpdesk') {
         NIM = response['data']['nip'];
         gedung =
-          "${response['data']['gedung']['nama']} (${response['data']['gedung']['kode']})";
+            "${response['data']['gedung']['nama']} (${response['data']['gedung']['kode']})";
       } else {
         NIM = response['data']['nim'];
-        nama = response['data']['nama'];
+
         prodi = response['data']['prodi'];
         agama = response['data']['agama'];
         noHP = response['data']['no_hp'];
         noHPOrtu = response['data']['no_hp_ortu'];
         noKamar = response['data']['kamar']['nomor'];
         gedung =
-          "${response['data']['kamar']['gedung']['nama']} (${response['data']['kamar']['gedung']['kode']})";
+            "${response['data']['kamar']['gedung']['nama']} (${response['data']['kamar']['gedung']['kode']})";
       }
+      nama = response['data']['nama'];
       status = role!;
     } catch (e) {
       setState(() {
