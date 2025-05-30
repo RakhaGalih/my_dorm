@@ -119,15 +119,21 @@ class _NotificationPageAdminState extends State<NotificationPageAdmin> {
                           children: [
                             Row(
                               children: [
-                                Text(
-                                  notification['judul'],
-                                  style: kBoldTextStyle.copyWith(fontSize: 14),
+                                Expanded(
+                                  child: Text(
+                                    notification['judul'],
+                                    style: kBoldTextStyle.copyWith(fontSize: 14),
+                                  ),
                                 ),
-                                const Spacer(),
-                                Text(
-                                  waktuLalu(notification['created_at']),
-                                  style: kMediumTextStyle.copyWith(
-                                      fontSize: 14, color: kGrey),
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.topRight,
+                                    child: Text(
+                                      waktuLalu(notification['created_at']),
+                                      style: kMediumTextStyle.copyWith(
+                                          fontSize: 14, color: kGrey),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
