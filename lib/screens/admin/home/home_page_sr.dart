@@ -85,8 +85,8 @@ class _HomePageSRState extends State<HomePageSR> {
       String? token = await getToken();
       response = await getDataToken("/kamar/status/all", token!);
       print(response);
-      kamarTerbuka = response['countTerbuka'];
-      kamarTertutup = response['countTertutup'];
+      kamarTerbuka = response['countTerbuka'].toString();
+      kamarTertutup = response['countTertutup'].toString();
     } catch (e) {
       if (e.toString() == 'Exception: Unauthorized or Forbidden') {
         print('Session expired');
