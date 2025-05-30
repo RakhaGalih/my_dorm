@@ -48,7 +48,7 @@ class PaketCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Kamar ${paket['pemilik_paket']['nama'] ?? 'Tidak diketahui'}",
+                  "Kamar ${paket['pemilik_paket']['kamar']['nomor'] ?? 'Tidak diketahui'}",
                   style: kBoldTextStyle.copyWith(fontSize: 15),
                 ),
                 const SizedBox(height: 5),
