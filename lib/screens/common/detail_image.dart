@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_dorm/components/appbar_page.dart';
+import 'package:my_dorm/service/image_service.dart';
 
 class DetailImagePage extends StatefulWidget {
   final String imagepath;
@@ -20,16 +21,16 @@ class _DetailImagePageState extends State<DetailImagePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Column(children: [
-      AppBarPage(
+      const AppBarPage(
         title: 'Detail Gambar',
       ),
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 15),
-        child: Image.asset(
-          widget.imagepath,
+        child: MyNetworkImage(
+          imageURL: widget.imagepath,
           height: 600,
           width: double.maxFinite,
-          fit: BoxFit.cover,
+          fit: BoxFit.fitWidth,
         ),
       )
     ]));

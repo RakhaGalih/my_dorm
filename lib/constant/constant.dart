@@ -100,7 +100,8 @@ const dormitizenToken =
     "eDlmG2sJRiWC-jPYlFoGSo:APA91bEyxjp9kOcamiDqOQkfRRlHNvkGfKTGw40uJHW6CCVVb9fCNB49fYVfATxOjVs9RW41O4G1Sme3kAzbmdToV7Lit-K5oOWfGWbsoSrmRCQ2SusqLsc";
 const mydorm_news_topic = "MyDorm-Informasi";
 
-void confirmDialog(BuildContext context, String title, String subtitle, VoidCallback onConfirm) {
+void confirmDialog(BuildContext context, String title, String subtitle,
+    VoidCallback? onConfirm) {
   showDialog(
       context: context,
       builder: (context) {
@@ -121,8 +122,7 @@ void confirmDialog(BuildContext context, String title, String subtitle, VoidCall
                   SizedBox(
                       width: 120,
                       child: GradientButton(
-                          ontap: onConfirm,
-                          title: "Iya")),
+                          ontap: onConfirm ?? () {}, title: "Iya")),
                   const SizedBox(
                     width: 5,
                   ),
