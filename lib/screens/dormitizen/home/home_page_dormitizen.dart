@@ -4,8 +4,6 @@ import 'package:my_dorm/components/info_card.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
 import 'package:my_dorm/service/http_service.dart';
-import 'package:my_dorm/service/myfirebasenotification_service.dart';
-import 'dart:developer' as dev;
 
 class HomePageDormitizen extends StatefulWidget {
   const HomePageDormitizen({super.key});
@@ -27,11 +25,12 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _getInfo();
+    _getInfoUser();
+    _getStatusKamar();
     _getInformasi();
   }
 
-  void _getInfo() async {
+  void _getInfoUser() async {
     error = "";
     setState(() {
       _showSpinner = true;
@@ -40,10 +39,9 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
     try {
       String? token = await getToken();
 
-      response = await getDataToken("/user", token!);
+      response = await getDataToken("/user/me", token!);
       print(response);
-      statusKamar = response['data'][0]['kamar']['status'];
-      nama = response['data'][0]['nama'];
+      nama = response['data']['nama'];
     } catch (e) {
       if (e.toString() == 'Exception: Unauthorized or Forbidden') {
         print('Session expired');
@@ -70,6 +68,31 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
     });
   }
 
+  void _getStatusKamar() async {
+    error = "";
+    setState(() {
+      _showSpinner = true;
+    });
+    try {
+      String? token = await getToken();
+      var response = await getDataToken('/kamar/status', token!);
+      print(response);
+
+      setState(() {
+        statusKamar = response['data']['status'];
+      });
+    } catch (e) {
+      print(e);
+      setState(() {
+        error = "Error: $e";
+      });
+    } finally {
+      setState(() {
+        _showSpinner = false;
+      });
+    }
+  }
+
   Future<void> _getInformasi() async {
     error = "";
     setState(() {
@@ -77,7 +100,7 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
     });
     try {
       String? token = await getToken();
-      var response = await getDataToken('/berita', token!);
+      var response = await getDataToken('/informasi', token!);
       List<Map<String, dynamic>> parsedData = (response['data'] as List)
           .map((item) => item as Map<String, dynamic>)
           .toList();
@@ -103,7 +126,7 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
         physics: const ClampingScrollPhysics(),
         child: Column(children: [
           SizedBox(
-            height: 135,
+            height: 145,
             child: Stack(children: [
               Container(
                 width: double.infinity,
@@ -146,36 +169,41 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
             child: Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: kRed,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: Row(children: [
-                    const Icon(
-                      Icons.info_outline,
-                      size: 18,
-                      color: kWhite,
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: kRed,
+                      borderRadius: BorderRadius.circular(5),
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      'Kunci Anda Sekarang berada di ',
-                      style: kRegularTextStyle.copyWith(
-                          color: kWhite, fontSize: 12),
-                    ),
-                    Text(
-                      (statusKamar == '')
-                          ? 'Loading...'
-                          : (statusKamar == 'terkunci')
-                              ? 'Helpdesk'
-                              : 'Kamar Anda',
-                      style:
-                          kBoldTextStyle.copyWith(color: kWhite, fontSize: 12),
-                    ),
-                  ]),
-                ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.info_outline,
+                          size: 18,
+                          color: kWhite,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Wrap(
+                            children: [
+                              Text(
+                                'Kunci Anda Sekarang berada di ',
+                                style: kRegularTextStyle.copyWith(
+                                    color: kWhite, fontSize: 12),
+                              ),
+                              Text(
+                                (statusKamar == '')
+                                    ? 'Loading...'
+                                    : (statusKamar == 'terkunci')
+                                        ? 'Helpdesk'
+                                        : 'Kamar Anda',
+                                style: kBoldTextStyle.copyWith(
+                                    color: kWhite, fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    )),
                 const SizedBox(
                   height: 12,
                 ),
