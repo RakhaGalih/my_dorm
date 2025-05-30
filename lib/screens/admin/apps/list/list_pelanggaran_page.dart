@@ -128,43 +128,6 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
               }
             },
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: kGrey),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.search),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        Text('Cari')
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: kGrey),
-                    ),
-                    child: const Icon(Icons.filter_alt)),
-              ],
-            ),
-          ),
           if (_showSpinner)
             const Padding(
               padding: EdgeInsets.all(8.0),
@@ -216,14 +179,9 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            // child: MyNetworkImage(
-                            //   imageURL: 'https://picsum.photos/100',
-                            //   width: 100,
-                            //   height: 100,
-                            //   fit: BoxFit.cover,
-                            // ),
-                            child: Image.asset(
-                              'images/dormitizen.png',
+                            child: MyNetworkImage(
+                              imageURL:
+                                  'https://mydorm-mobile-backend-production-5f66.up.railway.app/images/foto-profil/${dormitizen['gambar'].replaceAll('_', '-')}',
                               width: 50,
                               height: 50,
                               fit: BoxFit.cover,
