@@ -4,19 +4,43 @@ import 'package:my_dorm/components/filter_button.dart';
 import 'package:my_dorm/components/log_box.dart';
 import 'package:my_dorm/components/search_container.dart';
 import 'package:my_dorm/models/request_model.dart';
+import 'package:my_dorm/service/http_service.dart';
 
-class ListMyLog extends StatelessWidget {
+class ListMyLog extends StatefulWidget {
   const ListMyLog({super.key});
 
   @override
+  State<ListMyLog> createState() => _ListMyLogState();
+}
+
+class _ListMyLogState extends State<ListMyLog> {
+  List<RequestModel> logs = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchLogs();
+  }
+
+  Future<void> fetchLogs() async {
+    try {
+      final result = await fetchLogKeluarMasukOfDormitizen(); // dari service
+      setState(() {
+        logs = result;
+        isLoading = false;
+      });
+    } catch (e) {
+      print("Gagal mengambil log: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    List<RequestModel> logs = [
-      RequestModel(
-          name: "Rakha Galih Nugraha S", type: "In", date: DateTime.now()),
-      RequestModel(
-          name: "Iksan Oktav Risandy", type: "In", date: DateTime.now()),
-      RequestModel(name: "Abdillah Aufa", type: "Out", date: DateTime.now())
-    ];
+    
     return Scaffold(
         body: Column(children: [
       const AppBarPage(

@@ -6,8 +6,9 @@ import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/models/data_model.dart';
 import 'package:my_dorm/models/navbar_model.dart';
 import 'package:provider/provider.dart';
+import 'package:my_dorm/service/http_service.dart';
 
-class MainNavBarHome extends StatelessWidget {
+class MainNavBarHome extends StatefulWidget {
   final List<Widget> widgetOptions;
   final List<NavBarModel> navIcons;
   const MainNavBarHome({
@@ -17,13 +18,42 @@ class MainNavBarHome extends StatelessWidget {
   });
 
   @override
+  State<MainNavBarHome> createState() => _MainNavBarHomeState();
+}
+
+class _MainNavBarHomeState extends State<MainNavBarHome> {
+  String statusKamar = '';
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchStatus();
+  }
+
+  Future<void> fetchStatus() async {
+    try {
+      final result = await fetchStatusKamar(); // <-- fungsi dari jawaban sebelumnya
+      setState(() {
+        statusKamar = result;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        statusKamar = 'Gagal';
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Consumer<DataModel>(builder: (context, data, child) {
       return Scaffold(
         backgroundColor: kBgColor,
         body: Stack(
           children: [
-            widgetOptions[data.selectedNavBar],
+            widget.widgetOptions[data.selectedNavBar],
             Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
@@ -47,17 +77,42 @@ class MainNavBarHome extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      for (int i = 0; i < navIcons.length ~/ 2; i++)
+                      for (int i = 0; i < widget.navIcons.length ~/ 2; i++)
                         Expanded(
                           child: NavIcon(
-                            icon: navIcons[i].icon,
-                            title: navIcons[i].title,
+                            icon: widget.navIcons[i].icon,
+                            title: widget.navIcons[i].title,
                             index: i,
                           ),
                         ),
                       Expanded(
                         child: GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            confirmDialog(
+                              context,
+                              "Konfirmasi Request",
+                              "Apakah Anda yakin ingin mengajukan request keluar/masuk?",
+                              () async {
+                                Navigator.of(context)
+                                    .pop(); // Tutup dialog dulu
+                                try {
+                                  await requestKeluarMasuk(); // Fungsi untuk panggil API
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content:
+                                            Text('Request berhasil dikirim')),
+                                  );
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content:
+                                            Text('Gagal mengirim request')),
+                                  );
+                                }
+                              },
+                            );
+                          },
+
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -68,11 +123,10 @@ class MainNavBarHome extends StatelessWidget {
                                 decoration: const BoxDecoration(
                                     shape: BoxShape.circle,
                                     gradient: kGradientMain),
-                                child: const Icon(
-                                  /*(_masuk)
+                                child:  Icon(
+                                  statusKamar == "Kamar terkunci"
                                   ? FontAwesomeIcons.doorClosed
-                                  : */
-                                  FontAwesomeIcons.doorOpen,
+                                  : FontAwesomeIcons.doorOpen,
                                   color: kWhite,
                                 ),
                               ),
@@ -80,7 +134,7 @@ class MainNavBarHome extends StatelessWidget {
                                 height: 3,
                               ),
                               Text(
-                                /*(_masuk) ? 'Masuk' : */ 'Keluar',
+                                statusKamar == "Kamar terkunci" ? 'Masuk' : 'Keluar',
                                 style: kSemiBoldTextStyle.copyWith(
                                     fontSize: 14, color: kRed),
                               ),
@@ -88,13 +142,13 @@ class MainNavBarHome extends StatelessWidget {
                           ),
                         ),
                       ),
-                      for (int i = navIcons.length ~/ 2;
-                          i < navIcons.length;
+                      for (int i = widget.navIcons.length ~/ 2;
+                          i < widget.navIcons.length;
                           i++)
                         Expanded(
                           child: NavIcon(
-                            icon: navIcons[i].icon,
-                            title: navIcons[i].title,
+                            icon: widget.navIcons[i].icon,
+                            title: widget.navIcons[i].title,
                             index: i,
                           ),
                         ),

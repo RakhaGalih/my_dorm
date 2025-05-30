@@ -50,9 +50,9 @@ class LogBox extends StatelessWidget {
                             style: kMediumTextStyle.copyWith(
                                 fontSize: 12, color: Colors.black),
                             children: [
-                          const TextSpan(text: 'konfirmasi '),
+                          const TextSpan(text: 'Aktivitas '),
                           TextSpan(
-                              text: (type == 'In') ? 'masuk' : 'keluar',
+                              text: (type == 'masuk') ? 'Masuk' : 'Keluar',
                               style: kBoldTextStyle.copyWith(
                                   fontSize: 14, color: kRed)),
                           const TextSpan(text: ' asrama'),

@@ -7,19 +7,43 @@ import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/components/log_box.dart';
 import 'package:my_dorm/models/request_model.dart';
 import 'package:my_dorm/screens/admin/apps/form/add_log_page.dart';
+import 'package:my_dorm/service/http_service.dart';
 
-class ListRiwayatRequestPage extends StatelessWidget {
+class ListRiwayatRequestPage extends StatefulWidget {
   const ListRiwayatRequestPage({super.key});
 
   @override
+  State<ListRiwayatRequestPage> createState() => _ListRiwayatRequestPageState();
+}
+
+class _ListRiwayatRequestPageState extends State<ListRiwayatRequestPage> {
+  List<RequestModel> logs = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchLogs();
+  }
+
+  Future<void> fetchLogs() async {
+    try {
+      final result = await fetchLogKeluarMasuk();
+      setState(() {
+        logs = result;
+        isLoading = false;
+      });
+    } catch (e) {
+      print("Gagal mengambil data: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    List<RequestModel> logs = [
-      RequestModel(
-          name: "Rakha Galih Nugraha S", type: "In", date: DateTime.now()),
-      RequestModel(
-          name: "Iksan Oktav Risandy", type: "In", date: DateTime.now()),
-      RequestModel(name: "Abdillah Aufa", type: "Out", date: DateTime.now())
-    ];
+    final filteredLogs = logs.where((log) => log.status != 'pending').toList();
     return Scaffold(
         body: Column(children: [
       AppBarPage(
@@ -42,15 +66,23 @@ class ListRiwayatRequestPage extends StatelessWidget {
           ],
         ),
       ),
-      Column(
-          children: List.generate(
-              logs.length,
-              (index) => LogBox(
-                    nama: logs[index].name,
-                    type: logs[index].type,
-                    date: logs[index].date,
-                    onEdit: (){},
-                  )))
+       Expanded(
+          child: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : filteredLogs.isEmpty
+                  ? const Center(child: Text('Tidak ada riwayat log.'))
+                  : ListView.builder(
+                      itemCount: filteredLogs.length,
+                      itemBuilder: (context, index) {
+                        final log = filteredLogs[index];
+                        return LogBox(
+                          nama: log.name,
+                          type: log.type,
+                          date: log.date,
+                        );
+                      },
+                    ),
+        ),
     ]));
   }
 }

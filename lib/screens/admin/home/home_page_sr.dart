@@ -37,6 +37,7 @@ class _HomePageSRState extends State<HomePageSR> {
     super.initState();
     _getInfo();
     _getInfoKamar();
+    _getLogKeluarMasuk();
   }
 
   void _getInfo() async {
@@ -112,17 +113,36 @@ class _HomePageSRState extends State<HomePageSR> {
     });
   }
 
-  List<RequestModel> requests = [
-    RequestModel(
-        name: "Rakha Galih Nugraha S", type: "In", date: DateTime.now()),
-    RequestModel(name: "Iksan Oktav Risandy", type: "In", date: DateTime.now()),
-    RequestModel(name: "Abdillah Aufa", type: "Out", date: DateTime.now())
-  ];
+  void _getLogKeluarMasuk() async {
+    setState(() {
+      error = "";
+      _showSpinner = true;
+    });
+
+    try {
+      List<RequestModel> result = await fetchLogKeluarMasuk();
+      print(result
+          .map((r) =>
+              'ID: ${r.id},Name: ${r.name}, Type: ${r.type}, Date: ${r.date}, Status: ${r.status}')
+          .toList());
+
+      print("tesssss");
+      setState(() {
+        requests = result;
+      });
+    } catch (e) {
+      print("Gagal mengambil log keluar masuk: $e");
+    }
+  }
+
+  List<RequestModel> requests = [];
   @override
   Widget build(BuildContext context) {
-    void popList(List L, int index) {
+    final pendingRequests =
+        requests.where((r) => r.status == 'pending').toList();
+    void popList(RequestModel item) {
       setState(() {
-        L.removeAt(index);
+        requests.removeWhere((r) => r.id == item.id);
       });
     }
 
@@ -259,7 +279,7 @@ class _HomePageSRState extends State<HomePageSR> {
                         ],
                       ),
                     ),
-                    (requests.isEmpty)
+                    (pendingRequests.isEmpty)
                         ? Padding(
                             padding: const EdgeInsets.all(44),
                             child: Column(
@@ -284,15 +304,17 @@ class _HomePageSRState extends State<HomePageSR> {
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             child: Column(
                                 children: List.generate(
-                                    requests.length,
+                                    pendingRequests.length,
                                     (index) => RequestBox(
-                                          nama: requests[index].name,
-                                          type: requests[index].type,
-                                          onAccept: () {
-                                            popList(requests, index);
+                                          nama: pendingRequests[index].name,
+                                          type: pendingRequests[index].type,
+                                          onAccept: () async {
+                                            await updateStatusLog(pendingRequests[index].id,'diterima');
+                                            popList(pendingRequests[index]);
                                           },
-                                          onReject: () {
-                                            popList(requests, index);
+                                          onReject: () async {
+                                            await updateStatusLog(pendingRequests[index].id,'ditolak');
+                                            popList(pendingRequests[index]);
                                           },
                                         ))),
                           ),

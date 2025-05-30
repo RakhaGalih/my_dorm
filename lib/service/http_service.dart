@@ -6,6 +6,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 import 'package:path/path.dart'; // Added for basename function
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:my_dorm/models/request_model.dart';
 
 const String apiURL =
     "https://mydorm-mobile-backend-production-5f66.up.railway.app";
@@ -315,6 +316,96 @@ Future<dynamic> deleteDataToken(String endpoint) async {
   );
 
   return _handleResponse(response);
+}
+
+// get all log keluar masuk (gedung ini)
+Future<List<RequestModel>> fetchLogKeluarMasuk() async {
+  String address = "/log-keluar-masuk";
+  final uri = Uri.parse(apiURL + address);
+  String? token = await getToken();
+
+  final response = await http.get(uri, headers: {
+    'Authorization': 'Bearer $token',
+  });
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    final List<dynamic> logs = data['data'];
+    return logs.map((json) => RequestModel.fromJson(json)).toList();
+  } else {
+    throw Exception('Gagal mengambil data log keluar masuk.');
+  }
+}
+
+// get all log keluar masuk (dormitizen loged in)
+Future<List<RequestModel>> fetchLogKeluarMasukOfDormitizen() async {
+  final uri = Uri.parse('$apiURL/log-keluar-masuk/me');
+  String? token = await getToken();
+
+  final response = await http.get(
+    uri,
+    headers: {
+      'Authorization': 'Bearer $token',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final jsonData = json.decode(response.body);
+    final List data = jsonData['data'];
+    return data.map((e) => RequestModel.fromJson(e)).toList();
+  } else {
+    throw Exception('Gagal mengambil data log keluar masuk');
+  }
+}
+
+// Terima atau Tolak request keluar masuk
+Future<void> updateStatusLog(String id, String aksi) async {
+  final uri = Uri.parse('$apiURL/log-keluar-masuk/status/$aksi/$id');
+  String? token = await getToken();
+
+  final response = await http.put(uri, headers: {
+    'Authorization': 'Bearer $token',
+  });
+
+  if (response.statusCode == 200) {
+    print('Status berhasil diubah menjadi $aksi');
+  } else {
+    final body = jsonDecode(response.body);
+    throw Exception('Gagal mengubah status: ${body['message']}');
+  }
+}
+
+// cek status kamar dormitizen
+Future<String> fetchStatusKamar() async {
+  final uri = Uri.parse('$apiURL/log-keluar-masuk/status');
+  String? token = await getToken();
+
+  final response = await http.get(
+    uri,
+    headers: {'Authorization': 'Bearer $token'},
+  );
+
+  if (response.statusCode == 200) {
+    final json = jsonDecode(response.body);
+    return json['status'];
+  } else {
+    throw Exception('Gagal mengambil status kamar');
+  }
+}
+
+// Request keluar/masuk
+Future<void> requestKeluarMasuk() async {
+  final uri = Uri.parse(
+      '$apiURL/log-keluar-masuk/request'); // ganti jika endpoint berbeda
+  String? token = await getToken();
+
+  final response = await http.post(uri, headers: {
+    'Authorization': 'Bearer $token',
+  });
+
+  if (response.statusCode != 201) {
+    throw Exception('Request gagal dengan kode: ${response.statusCode}');
+  }
 }
 
 Future<dynamic> updateDataTokenTanpaBody(String endpoint) async {
