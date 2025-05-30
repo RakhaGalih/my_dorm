@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:my_dorm/components/appbar_page.dart';
+import 'package:my_dorm/components/gradient_button.dart';
 import 'package:my_dorm/components/info_card.dart';
+import 'package:my_dorm/components/outline_button.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/screens/admin/apps/form/add_informasi_page.dart';
+import 'package:my_dorm/screens/admin/apps/form/edit_informasi_page.dart';
 import 'package:my_dorm/service/http_service.dart';
 
 class ListInformasiPage extends StatefulWidget {
@@ -20,6 +23,14 @@ class _ListInformasiPageState extends State<ListInformasiPage> {
   void initState() {
     super.initState();
     getInformasi();
+  }
+
+  Future<void> refresh() async {
+    setState(() {
+      _showSpinner = true;
+      informasis.clear();
+    });
+    await getInformasi();
   }
 
   Future<void> getInformasi() async {
@@ -60,6 +71,85 @@ class _ListInformasiPageState extends State<ListInformasiPage> {
         setState(() {});
       }
     }
+  }
+
+  void _deleteInformasi(String informasiId) async {
+    setState(() {
+      _showSpinner = true;
+    });
+    try {
+      var response = await deleteDataToken('/informasi/$informasiId');
+      if (response['message'] == 'Informasi berhasil dihapus') {
+        setState(() {
+          informasis.removeWhere(
+              (informasi) => informasi['informasi_id'] == informasiId);
+        });
+        Navigator.pop(context);
+      } else {
+        setState(() {
+          error = "Gagal menghapus pelanggaran";
+        });
+      }
+    } catch (e) {
+      print(e);
+      setState(() {
+        error = "Error: $e";
+      });
+    } finally {
+      setState(() {
+        _showSpinner = false;
+      });
+      Navigator.pop(context);
+    }
+  }
+
+  void _showActionDialog(Map<String, dynamic> item) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            'Aksi Informasi',
+            style: kBoldTextStyle,
+          ),
+          backgroundColor: kWhite,
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Aksi apa yang ingin Anda lakukan?'),
+                const SizedBox(height: 10),
+                GradientButton(
+                  ontap: () async {
+                    final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => EditInformasiPage(
+                                  item: item,
+                                )));
+                    if (result != null) {
+                      refresh();
+                    }
+                  },
+                  title: "EDIT",
+                ),
+                const SizedBox(height: 10),
+                OutlineButton(
+                    ontap: () {
+                      confirmDialog(context, "Konfirmasi Penghapusan",
+                          "Apakah anda yakin ingin menghapus informasi ini?",
+                          () {
+                        _deleteInformasi(item['informasi_id']);
+                      });
+                    },
+                    title: "DELETE"),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -119,7 +209,12 @@ class _ListInformasiPageState extends State<ListInformasiPage> {
                     itemCount: informasis.length,
                     itemBuilder: (context, index) {
                       final item = informasis[index];
-                      return InformasiCard(item: item);
+                      return InformasiCard(
+                        item: item,
+                        onHold: () {
+                          _showActionDialog(item);
+                        },
+                      );
                     },
                   ),
                 ),

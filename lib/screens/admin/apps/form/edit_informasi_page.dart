@@ -41,7 +41,7 @@ class _EditInformasiPageState extends State<EditInformasiPage> {
     gambar = null; // Initialize gambar to null
   }
 
-  Future<void> _editInformasi() async {
+  Future<void> _editInformasi(String informasiId) async {
     error = "";
     setState(() {
       _showSpinner = true;
@@ -53,8 +53,9 @@ class _EditInformasiPageState extends State<EditInformasiPage> {
         'judul': _judulController.text,
         'isi': _deskripsiController.text,
       };
-      response = await updateDataTokenWithImage("/informasi", data, gambar);
-      print('berhasil tambah laporan!');
+      response = await updateDataTokenWithImage(
+          "/informasi/$informasiId", data, gambar);
+      print('berhasil ubah informasi!');
 
       print(response['message']);
     } catch (e) {
@@ -90,28 +91,20 @@ class _EditInformasiPageState extends State<EditInformasiPage> {
                       const SizedBox(
                         height: 12,
                       ),
-                      (true)
-                          ? MyNetworkImage(
-                              imageURL:
-                                  '$apiURL/images/informasi/${widget.item['gambar']}',
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            )
-                          : FormPhotoPicker(
-                              title: 'informasi',
-                              onImageSelected: (selectedImage) {
-                                // Handle the selected image here
-                                if (selectedImage != null) {
-                                  print(
-                                      'Selected image path: ${selectedImage.path}');
-                                } else {
-                                  print('Image cleared');
-                                }
-                                setState(() {
-                                  gambar = selectedImage;
-                                });
-                              },
-                            ),
+                      FormPhotoPicker(
+                        title: 'informasi',
+                        onImageSelected: (selectedImage) {
+                          // Handle the selected image here
+                          if (selectedImage != null) {
+                            print('Selected image path: ${selectedImage.path}');
+                          } else {
+                            print('Image cleared');
+                          }
+                          setState(() {
+                            gambar = selectedImage;
+                          });
+                        },
+                      ),
                       FormDropDown(
                           title: 'Kategori',
                           kategoriItems: const [
@@ -140,11 +133,12 @@ class _EditInformasiPageState extends State<EditInformasiPage> {
                               if (selectedKategori!.isNotEmpty &&
                                   gambar != null) {
                                 try {
-                                  await _editInformasi();
+                                  await _editInformasi(
+                                      widget.item['informasi_id']);
 
                                   // Create the SnackBar
                                   const snackBar = SnackBar(
-                                    content: Text('Data berhasil ditambahkan!'),
+                                    content: Text('Data berhasil diubah!'),
                                   );
 
                                   // Show the SnackBar
@@ -157,7 +151,7 @@ class _EditInformasiPageState extends State<EditInformasiPage> {
                               }
                             }
                           },
-                          title: 'Tambah')
+                          title: 'Simpan Perubahan')
                     ],
                   ),
                 ),
