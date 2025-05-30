@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_dorm/components/appbar_home.dart';
 import 'package:my_dorm/components/paket_card.dart';
+import 'package:my_dorm/components/paket_my_card.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/service/http_service.dart';
 
@@ -14,6 +15,9 @@ class PaketPageDormitizen extends StatefulWidget {
 
 class _PaketPageDormitizenState extends State<PaketPageDormitizen> {
   List<Map<String, dynamic>> pakets = [];
+  List<Map<String, dynamic>> pakets_belum = [];
+  List<Map<String, dynamic>> pakets_sudah = [];
+  String? role;
   String error = "";
   // ignore: unused_field
   bool _showSpinner = false;
@@ -34,7 +38,11 @@ class _PaketPageDormitizenState extends State<PaketPageDormitizen> {
     setState(() {
       _showSpinner = true;
     });
+
     try {
+      pakets_belum.clear();
+      pakets_sudah.clear();
+      role = await getRole();
       String? token = await getToken();
       var response = await getDataToken('/paket', token!);
       if (response['data'] != null) {
@@ -44,6 +52,14 @@ class _PaketPageDormitizenState extends State<PaketPageDormitizen> {
               .toList();
         });
         print('Data Paket: $pakets');
+
+        for (int i = 0; i < pakets.length; i++) {
+          if (pakets[i]["status_pengambilan"] == "belum") {
+            pakets_belum.add(pakets[i]);
+          } else {
+            pakets_sudah.add(pakets[i]);
+          }
+        }
       } else {
         setState(() {
           error = "Data paket dormitizen kosong.";
@@ -52,10 +68,12 @@ class _PaketPageDormitizenState extends State<PaketPageDormitizen> {
     } catch (e) {
       print(e);
       setState(() {
-        _showSpinner = false;
         error = "Error: $e";
       });
     }
+    setState(() {
+      _showSpinner = false;
+    });
   }
 
   @override
@@ -141,19 +159,45 @@ class _PaketPageDormitizenState extends State<PaketPageDormitizen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    'Daftar Paket :',
+                    'Paket belum diambil :',
                     style: kBoldTextStyle.copyWith(fontSize: 14),
                   ),
                   const SizedBox(
                     height: 10,
                   ),
-                  Column(
-                    children: List.generate(
-                        pakets.length,
-                        (index) => PaketCard(
-                              paket: pakets[index],
-                            )),
+                  (_showSpinner)
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: kRed,
+                          ),
+                        )
+                      : Column(
+                          children: List.generate(
+                              pakets_belum.length,
+                              (index) => MyPaketCard(
+                                    paket: pakets_belum[index],
+                                  )),
+                        ),
+                  const SizedBox(
+                    height: 10,
                   ),
+                  Text(
+                    'Paket sudah diambil :',
+                    style: kBoldTextStyle.copyWith(fontSize: 14),
+                  ),
+                  (_showSpinner)
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: kRed,
+                          ),
+                        )
+                      : Column(
+                          children: List.generate(
+                              pakets_sudah.length,
+                              (index) => MyPaketCard(
+                                paket: pakets_sudah[index],
+                              )),
+                        ),
                 ],
               ),
             ),
