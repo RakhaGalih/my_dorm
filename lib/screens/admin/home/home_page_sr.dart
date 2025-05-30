@@ -8,12 +8,12 @@ import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/models/request_model.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_informasi_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_my_log.dart';
+import 'package:my_dorm/screens/admin/apps/list/list_my_paket.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_paket_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_riwayat_request_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_statistik_page.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
 import 'package:my_dorm/service/http_service.dart';
-import 'package:my_dorm/service/myfirebasenotification_service.dart';
 
 class HomePageSR extends StatefulWidget {
   const HomePageSR({
@@ -85,8 +85,8 @@ class _HomePageSRState extends State<HomePageSR> {
       String? token = await getToken();
       response = await getDataToken("/kamar/status/all", token!);
       print(response);
-      kamarTerbuka = response['countTerbuka'];
-      kamarTertutup = response['countTertutup'];
+      kamarTerbuka = response['countTerbuka'].toString();
+      kamarTertutup = response['countTertutup'].toString();
     } catch (e) {
       if (e.toString() == 'Exception: Unauthorized or Forbidden') {
         print('Session expired');
@@ -309,11 +309,15 @@ class _HomePageSRState extends State<HomePageSR> {
                                           nama: pendingRequests[index].name,
                                           type: pendingRequests[index].type,
                                           onAccept: () async {
-                                            await updateStatusLog(pendingRequests[index].id,'diterima');
+                                            await updateStatusLog(
+                                                pendingRequests[index].id,
+                                                'diterima');
                                             popList(pendingRequests[index]);
                                           },
                                           onReject: () async {
-                                            await updateStatusLog(pendingRequests[index].id,'ditolak');
+                                            await updateStatusLog(
+                                                pendingRequests[index].id,
+                                                'ditolak');
                                             popList(pendingRequests[index]);
                                           },
                                         ))),
@@ -367,7 +371,7 @@ class _HomePageSRState extends State<HomePageSR> {
                               AppsIcon(
                                 icon: FontAwesomeIcons.boxArchive,
                                 title: 'My Paket',
-                                pushWidget: ListPaketPage(),
+                                pushWidget: ListMyPaketPage(),
                               ),
                             ],
                           ),

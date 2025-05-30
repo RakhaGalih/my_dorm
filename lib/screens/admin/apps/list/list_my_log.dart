@@ -44,7 +44,7 @@ class _ListMyLogState extends State<ListMyLog> {
     return Scaffold(
         body: Column(children: [
       const AppBarPage(
-        title: 'Riwayat Request',
+        title: 'My Log',
       ),
       const SizedBox(height: 20),
       Padding(

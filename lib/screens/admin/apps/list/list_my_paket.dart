@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:my_dorm/components/appbar_home.dart';
+import 'package:my_dorm/components/appbar_page.dart';
 import 'package:my_dorm/components/paket_my_card.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/screens/common/detail_image.dart';
 import 'package:my_dorm/service/http_service.dart';
 import 'package:my_dorm/service/image_service.dart';
 
-class PaketPageDormitizen extends StatefulWidget {
-  const PaketPageDormitizen({super.key});
+class ListMyPaketPage extends StatefulWidget {
+  const ListMyPaketPage({super.key});
 
   @override
-  State<PaketPageDormitizen> createState() => _PaketPageDormitizenState();
+  State<ListMyPaketPage> createState() => _ListMyPaketPageState();
 }
 
-class _PaketPageDormitizenState extends State<PaketPageDormitizen> {
+class _ListMyPaketPageState extends State<ListMyPaketPage> {
   List<Map<String, dynamic>> pakets = [];
   List<Map<String, dynamic>> pakets_belum = [];
   List<Map<String, dynamic>> pakets_sudah = [];
@@ -138,23 +138,24 @@ class _PaketPageDormitizenState extends State<PaketPageDormitizen> {
                 height: 10,
               ),
               if (paket['status_pengambilan'] == "belum")
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const Icon(
-                      FontAwesomeIcons.locationPin,
-                      size: 18,
-                      color: kRed,
-                    ),
-                    const SizedBox(width: 5),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const Icon(
+                    FontAwesomeIcons.locationPin,
+                    size: 18,
+                    color: kRed,
+                  ),
+                  const SizedBox(width: 5),
+                  
                     Expanded(
                         child: Text(
                       "Helpdesk",
                       style: kSemiBoldTextStyle.copyWith(
                           fontSize: 12, color: kRed),
                     ))
-                  ],
-                ),
+                ],
+              ),
               const SizedBox(
                 height: 10,
               ),
@@ -204,9 +205,7 @@ class _PaketPageDormitizenState extends State<PaketPageDormitizen> {
                     size: 18,
                   ),
                   const SizedBox(width: 5),
-                  Expanded(
-                      child: Text(
-                          "${formatTanggal(paket['waktu_tiba'])} (Diterima)")),
+                  Expanded(child: Text("${formatTanggal(paket['waktu_tiba'])} (Diterima)")),
                 ],
               ),
               if (paket['status_pengambilan'] == "sudah")
@@ -237,140 +236,76 @@ class _PaketPageDormitizenState extends State<PaketPageDormitizen> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 145,
-              child: Stack(children: [
-                Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  decoration: const BoxDecoration(gradient: kGradientMain),
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Image.asset('images/bg-asrama-wide.png',
-                      width: double.infinity, fit: BoxFit.cover),
-                ),
-                Column(
+    return Scaffold(
+      body: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: Column(
+            children: [
+              const AppBarPage(
+                title: 'My Paket',
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    AppBarHome(
-                      titleContent: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Paket kamu akan',
-                            style: kSemiBoldTextStyle.copyWith(
-                                color: kWhite, fontSize: 15),
-                          ),
-                          Text(
-                            'Teracatat di sini!',
-                            style: kSemiBoldTextStyle.copyWith(
-                                color: kWhite, fontSize: 15),
-                          ),
-                        ],
-                      ),
+                    Text(
+                      'Paket belum diambil :',
+                      style: kBoldTextStyle.copyWith(fontSize: 14),
                     ),
-                    /* const SizedBox(
-                      height: 20,
+                    const SizedBox(
+                      height: 10,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 30),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Cari Paket :',
-                            style: kSemiBoldTextStyle.copyWith(
-                                fontSize: 14, color: kWhite),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(color: kBlueGrey, width: 1),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: const TextField(
-                              decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'Nama Barang',
-                                  prefixIcon: Icon(Icons.search),
-                                  prefixIconColor: kBlueGrey),
+                    (_showSpinner)
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              color: kRed,
                             ),
                           )
-                        ],
-                      ),
-                    )*/
+                        : Column(
+                            children: List.generate(
+                                pakets_belum.length,
+                                (index) => GestureDetector(
+                                      onTap: () {
+                                        showPaketDetail(pakets_belum[index]);
+                                      },
+                                      child: MyPaketCard(
+                                        paket: pakets_belum[index],
+                                      ),
+                                    )),
+                          ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      'Paket sudah diambil :',
+                      style: kBoldTextStyle.copyWith(fontSize: 14),
+                    ),
+                    (_showSpinner)
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              color: kRed,
+                            ),
+                          )
+                        : Column(
+                            children: List.generate(
+                                pakets_sudah.length,
+                                (index) => GestureDetector(
+                                      onTap: () {
+                                        showPaketDetail(pakets_sudah[index]);
+                                      },
+                                      child: MyPaketCard(
+                                        paket: pakets_sudah[index],
+                                      ),
+                                    )),
+                          ),
                   ],
                 ),
-              ]),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    'Paket belum diambil :',
-                    style: kBoldTextStyle.copyWith(fontSize: 14),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  (_showSpinner)
-                      ? const Center(
-                          child: CircularProgressIndicator(
-                            color: kRed,
-                          ),
-                        )
-                      : Column(
-                          children: List.generate(
-                              pakets_belum.length,
-                              (index) => GestureDetector(
-                                    onTap: () {
-                                      showPaketDetail(pakets_belum[index]);
-                                    },
-                                    child: MyPaketCard(
-                                      paket: pakets_belum[index],
-                                    ),
-                                  )),
-                        ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    'Paket sudah diambil :',
-                    style: kBoldTextStyle.copyWith(fontSize: 14),
-                  ),
-                  (_showSpinner)
-                      ? const Center(
-                          child: CircularProgressIndicator(
-                            color: kRed,
-                          ),
-                        )
-                      : Column(
-                          children: List.generate(
-                              pakets_sudah.length,
-                              (index) => GestureDetector(
-                                    onTap: () {
-                                      showPaketDetail(pakets_sudah[index]);
-                                    },
-                                    child: MyPaketCard(
-                                      paket: pakets_sudah[index],
-                                    ),
-                                  )),
-                        ),
-                ],
               ),
-            ),
-          ],
-        ));
+            ],
+          )),
+    );
   }
 }
