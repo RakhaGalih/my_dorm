@@ -44,19 +44,18 @@ class _ProfilPageDromitizenState extends State<ProfilPageDromitizen> {
     Map<String, dynamic> response = {};
     try {
       String? token = await getToken();
-      response = await getDataToken("/user", token!);
+      response = await getDataToken("/user/me", token!);
       print(response);
-      NIM = response['data'][0]['nim'];
-      status = response['user_type'];
-      nama = response['data'][0]['nama'];
-      username = response['data'][0]['username'];
-      prodi = response['data'][0]['prodi'];
-      agama = response['data'][0]['agama'];
-      noHP = response['data'][0]['no_hp'];
-      noHPOrtu = response['data'][0]['no_hp_ortu'];
+      NIM = response['data']['nim'];
+      status = await getRole() ?? 'Dormitizen';
+      prodi = response['data']['prodi'];
+      agama = response['data']['agama'];
+      noHP = response['data']['no_hp'];
+      noHPOrtu = response['data']['no_hp_ortu'];
+      noKamar = response['data']['kamar']['nomor'];
       gedung =
-          "${response['data'][0]['kamar']['gedung']['nama']} (${response['data'][0]['kamar']['gedung']['kode']})";
-      noKamar = response['data'][0]['kamar']['nomor'];
+          "${response['data']['kamar']['gedung']['nama']} (${response['data']['kamar']['gedung']['kode']})";
+      nama = response['data']['nama'];
     } catch (e) {
       setState(() {
         _showSpinner = false;
@@ -176,7 +175,6 @@ class _ProfilPageDromitizenState extends State<ProfilPageDromitizen> {
                     children: [
                       ProfileDesc(title: 'NIM', value: NIM),
                       ProfileDesc(title: 'Status', value: status),
-                      ProfileDesc(title: 'Username', value: username),
                       ProfileDesc(title: 'Prodi', value: prodi),
                       ProfileDesc(title: 'Agama', value: agama),
                       ProfileDesc(title: 'No HP', value: noHP),
