@@ -50,11 +50,6 @@ class _HomePageSRState extends State<HomePageSR> {
       response = await getDataToken("/user/me", token!);
       print(response);
       nama = response['data']['nama'];
-
-      // sekalian post token firebase ke BE
-      String tokenFirebaseNotification =
-          await FirebaseNotificationService.getToken();
-      await postTokenFCM(tokenFirebaseNotification);
     } catch (e) {
       if (e.toString() == 'Exception: Unauthorized or Forbidden') {
         print('Session expired');

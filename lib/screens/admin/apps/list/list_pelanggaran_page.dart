@@ -69,11 +69,6 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
     }
   }
 
-  String formatTanggal(String tanggal) {
-    DateTime dateTime = DateTime.parse(tanggal).toLocal();
-    return DateFormat('dd MMM yyyy, HH:mm').format(dateTime);
-  }
-
   Future<void> getPelanggaranByKamar() async {
     error = "";
     setState(() {
