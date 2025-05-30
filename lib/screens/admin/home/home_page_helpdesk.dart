@@ -51,11 +51,6 @@ class _HomePageHelpdeskState extends State<HomePageHelpdesk> {
       response = await getDataToken("/user/me", token!);
       print(response);
       nama = response['data']['nama'];
-
-      // sekalian post token firebase ke BE
-      String tokenFirebaseNotification =
-          await FirebaseNotificationService.getToken();
-      await postTokenFCM(tokenFirebaseNotification);
     } catch (e) {
       if (e.toString() == 'Exception: Unauthorized or Forbidden') {
         print('Session expired');
@@ -343,7 +338,7 @@ class _HomePageHelpdeskState extends State<HomePageHelpdesk> {
                                 // pushWidget: UnavailableFeaturesPage(),
                                 pushWidget: ListStatistikPage(),
                               ),
-                              Expanded(flex: 2,child: SizedBox())
+                              Expanded(flex: 2, child: SizedBox())
                             ],
                           ),
                         ],

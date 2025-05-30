@@ -163,43 +163,6 @@ class _ListDetailPelanggaranPageState extends State<ListDetailPelanggaranPage> {
               }
             },
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: kGrey),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.search),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        Text('Cari')
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: kGrey),
-                    ),
-                    child: const Icon(Icons.filter_alt)),
-              ],
-            ),
-          ),
           if (_showSpinner)
             const Padding(
               padding: EdgeInsets.all(8.0),
@@ -226,13 +189,13 @@ class _ListDetailPelanggaranPageState extends State<ListDetailPelanggaranPage> {
             const SizedBox(height: 4),
           if (pelanggarans.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(left: 25),
+              padding: const EdgeInsets.only(left: 32, top: 12),
               child: Text(
                 "List Pelanggaran ${pelanggarans[0]['pelanggar']['nama']} ",
                 style: kBoldTextStyle,
               ),
             ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 10),
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -255,20 +218,12 @@ class _ListDetailPelanggaranPageState extends State<ListDetailPelanggaranPage> {
                               // Gambar Lokal Menggunakan Image.asset
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
-                                child: Image.asset(
-                                  'images/dormitizen.png',
+                                child: MyNetworkImage(
+                                  imageURL:
+                                      'https://mydorm-mobile-backend-production-5f66.up.railway.app/images/foto-profil/${pelanggaran['pelanggar']['gambar'].replaceAll('_', '-')}',
                                   width: 50,
                                   height: 50,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      width: 50,
-                                      height: 50,
-                                      color: Colors.grey[300],
-                                      child:
-                                          const Icon(Icons.image_not_supported),
-                                    );
-                                  },
                                 ),
                               ),
                               const SizedBox(width: 12),

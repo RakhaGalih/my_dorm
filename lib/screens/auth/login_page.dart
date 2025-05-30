@@ -9,6 +9,8 @@ import 'package:my_dorm/screens/auth/pilih_role.dart';
 import 'package:my_dorm/screens/auth/register_page.dart';
 import 'package:my_dorm/screens/dormitizen/home_dormitizen.dart';
 import 'package:my_dorm/service/http_service.dart';
+import 'package:my_dorm/service/myfirebasenotification_service.dart';
+import 'dart:developer' as dev;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -42,6 +44,11 @@ class _LoginPageState extends State<LoginPage> {
       print('response login: $response');
 
       if (mounted) {
+        // sekalian post token firebase ke BE
+        String tokenFirebaseNotification =
+            await FirebaseNotificationService.getToken();
+        await postTokenFCM(tokenFirebaseNotification);
+        dev.log('Firebase token: $tokenFirebaseNotification berhasil dikirim');
         if (response['role'] == 'senior_resident') {
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => NavbarSR()));

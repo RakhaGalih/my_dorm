@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -34,8 +35,13 @@ void main() async {
     0,
   );
   await notificationService.scheduleNotification(selectedTime);
-  // _notificationService.showInstantNotification();
   await FirebaseNotificationService.initialize();
+
+  FirebaseMessaging.instance.onTokenRefresh.listen((String fcmToken) async {
+    print('FCM Token refreshed: $fcmToken');
+    await postTokenFCM(fcmToken);
+  });
+
   runApp(const MainApp());
 }
 

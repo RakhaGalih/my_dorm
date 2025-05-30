@@ -44,11 +44,6 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
       print(response);
       statusKamar = response['data'][0]['kamar']['status'];
       nama = response['data'][0]['nama'];
-
-      // sekalian post token firebase ke BE
-      String tokenFirebaseNotification =
-          await FirebaseNotificationService.getToken();
-      await postTokenFCM(tokenFirebaseNotification);
     } catch (e) {
       if (e.toString() == 'Exception: Unauthorized or Forbidden') {
         print('Session expired');
