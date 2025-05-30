@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_dorm/constant/constant.dart';
 
-
 class MyNetworkImage extends StatelessWidget {
   final String? imageURL;
   final double? width;
@@ -61,13 +60,14 @@ class MyNetworkImage extends StatelessWidget {
         width: width,
         height: height,
         color: Colors.grey[300],
-        child: const Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.image_not_supported),
+            const Icon(Icons.image_not_supported),
             Text(
               'Failed to load image',
               textAlign: TextAlign.center,
+              style: kRegularTextStyle.copyWith(fontSize: 10),
             )
           ],
         ),

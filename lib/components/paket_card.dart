@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_dorm/constant/constant.dart';
@@ -13,11 +14,8 @@ class PaketCard extends StatelessWidget {
     required this.paket,
   });
 
-
-
   @override
   Widget build(BuildContext context) {
-    print("PaketCard: $paket");
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 5),
       padding: const EdgeInsets.all(5),
@@ -52,7 +50,7 @@ class PaketCard extends StatelessWidget {
                   style: kBoldTextStyle.copyWith(fontSize: 15),
                 ),
                 const SizedBox(height: 5),
-                if ((paket['status_pengambilan'] ?? 'belum')== "belum")
+                if ((paket['status_pengambilan'] ?? 'belum') == "belum")
                   Row(
                     children: [
                       const Icon(

@@ -316,3 +316,17 @@ Future<dynamic> deleteDataToken(String endpoint) async {
 
   return _handleResponse(response);
 }
+
+Future<dynamic> updateDataTokenTanpaBody(String endpoint) async {
+  final uri = Uri.parse('$apiURL$endpoint');
+  String? token = await getToken();
+
+  final response = await http.put(
+    uri,
+    headers: <String, String>{
+      'Authorization': 'Bearer $token',
+    },
+  );
+
+  return _handleResponse(response);
+}

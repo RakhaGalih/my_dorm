@@ -9,6 +9,7 @@ import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/screens/admin/apps/form/add_paket_page.dart';
 import 'package:my_dorm/screens/common/detail_image.dart';
 import 'package:my_dorm/service/http_service.dart';
+import 'package:my_dorm/service/image_service.dart';
 
 class ListPaketPage extends StatefulWidget {
   const ListPaketPage({super.key});
@@ -22,6 +23,7 @@ class _ListPaketPageState extends State<ListPaketPage> {
   List<Map<String, dynamic>> pakets_belum = [];
   List<Map<String, dynamic>> pakets_sudah = [];
   String error = "";
+  String? role;
   // ignore: unused_field
   bool _showSpinner = false;
 
@@ -41,7 +43,11 @@ class _ListPaketPageState extends State<ListPaketPage> {
     setState(() {
       _showSpinner = true;
     });
+
     try {
+      pakets_belum.clear();
+      pakets_sudah.clear();
+      role = await getRole();
       String? token = await getToken();
       var response = await getDataToken('/paket/all', token!);
       if (response['data'] != null) {
@@ -75,6 +81,48 @@ class _ListPaketPageState extends State<ListPaketPage> {
     });
   }
 
+  Future<void> deletePaket(String id) async {
+    error = "";
+    setState(() {
+      _showSpinner = true;
+    });
+    try {
+      await deleteDataToken('/paket/$id');
+
+      print('Paket dengan ID $id berhasil dihapus');
+    } catch (e) {
+      print(e);
+      setState(() {
+        error = "Error: $e";
+      });
+    } finally {
+      setState(() {
+        _showSpinner = false;
+      });
+    }
+  }
+
+  Future<void> updatePaket(String id) async {
+    error = "";
+    setState(() {
+      _showSpinner = true;
+    });
+    try {
+      await updateDataTokenTanpaBody('/paket/$id');
+
+      print('Paket dengan ID $id berhasil diupdate');
+    } catch (e) {
+      print(e);
+      setState(() {
+        error = "Error: $e";
+      });
+    } finally {
+      setState(() {
+        _showSpinner = false;
+      });
+    }
+  }
+
   void showPaketDetail(Map<String, dynamic> paket) {
     showDialog(
       context: context,
@@ -95,11 +143,12 @@ class _ListPaketPageState extends State<ListPaketPage> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const DetailImagePage(
-                                    imagepath: 'images/paket.png')));
+                                builder: (context) => DetailImagePage(
+                                    imagepath:
+                                        '$apiURL/images/paket/${paket['gambar']}')));
                       },
-                      child: Image.asset(
-                        'images/paket.png',
+                      child: MyNetworkImage(
+                        imageURL: '$apiURL/images/paket/${paket['gambar']}',
                         width: double.maxFinite,
                         height: 150,
                         fit: BoxFit.cover,
@@ -130,7 +179,7 @@ class _ListPaketPageState extends State<ListPaketPage> {
               ),
               const SizedBox(height: 10),
               Text(
-                  "${paket['dormitizen']['nama']} (${paket['dormitizen']['kamar']['nomor']})",
+                  "${paket['pemilik_paket']['nama']} (${paket['pemilik_paket']['kamar']['nomor']})",
                   style: kBoldTextStyle),
               const SizedBox(
                 height: 10,
@@ -144,17 +193,18 @@ class _ListPaketPageState extends State<ListPaketPage> {
                     color: kRed,
                   ),
                   const SizedBox(width: 5),
-                  paket['status_pengambilan'] == "belum"
-                      ? Text(
-                          "Helpdesk",
-                          style: kSemiBoldTextStyle.copyWith(
-                              fontSize: 12, color: kRed),
-                        )
-                      : Text(
-                          "Kamar ${paket['dormitizen']['kamar']['nomor']}",
-                          style: kSemiBoldTextStyle.copyWith(
-                              fontSize: 12, color: kRed),
-                        )
+                  Expanded(
+                      child: paket['status_pengambilan'] == "belum"
+                          ? Text(
+                              "Helpdesk",
+                              style: kSemiBoldTextStyle.copyWith(
+                                  fontSize: 12, color: kRed),
+                            )
+                          : Text(
+                              "Kamar ${paket['pemilik_paket']['kamar']['nomor']}",
+                              style: kSemiBoldTextStyle.copyWith(
+                                  fontSize: 12, color: kRed),
+                            ))
                 ],
               ),
               const SizedBox(
@@ -168,10 +218,13 @@ class _ListPaketPageState extends State<ListPaketPage> {
                     size: 18,
                   ),
                   const SizedBox(width: 5),
-                  Text(
-                    "${paket['penerima paket']['nama']} (Pj Penerimaan)",
-                    style: kSemiBoldTextStyle.copyWith(fontSize: 12),
-                  )
+                  if (paket['penerima_paket']['nama'] != null)
+                    Expanded(
+                      child: Text(
+                        "${paket['penerima_paket']['nama']} (Pj Penerimaan)",
+                        style: kSemiBoldTextStyle.copyWith(fontSize: 12),
+                      ),
+                    )
                 ],
               ),
               if (paket['status_pengambilan'] == "sudah")
@@ -183,10 +236,13 @@ class _ListPaketPageState extends State<ListPaketPage> {
                       size: 18,
                     ),
                     const SizedBox(width: 5),
-                    Text(
-                      "${paket['penyerahan paket']['nama']} (Pj Penerimaan)",
-                      style: kSemiBoldTextStyle.copyWith(fontSize: 12),
-                    )
+                    if (paket['penyerah_paket']['nama'] != null)
+                      Expanded(
+                        child: Text(
+                          "${paket['penyerah_paket']['nama']} (Pj Penerimaan)",
+                          style: kSemiBoldTextStyle.copyWith(fontSize: 12),
+                        ),
+                      )
                   ],
                 ),
               const SizedBox(
@@ -227,17 +283,26 @@ class _ListPaketPageState extends State<ListPaketPage> {
                     const SizedBox(
                       height: 15,
                     ),
-                    GradientButton(ontap: () {}, title: "Edit"),
+                    GradientButton(
+                        ontap: () async {
+                          await updatePaket(paket['paket_id']);
+                          Navigator.of(context).pop();
+                          await getPaket();
+                        },
+                        title: "Selesai"),
                     const SizedBox(
                       height: 10,
                     ),
                     OutlineButton(
                         ontap: () {
-                          confirmDialog(
-                              context,
-                              "Konfirmasi Penghapusan",
+                          confirmDialog(context, "Konfirmasi Penghapusan",
                               "Apakah anda yakin ingin menghapus data paket ini",
-                              () {});
+                              () async {
+                            await deletePaket(paket['paket_id']);
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pop();
+                            await getPaket();
+                          });
                         },
                         title: "Hapus Paket"),
                   ],
@@ -271,9 +336,11 @@ class _ListPaketPageState extends State<ListPaketPage> {
           child: Column(children: [
             AppBarPage(
               title: 'Paket',
-              onAdd: () {
-                _navigateAndDisplayResult(context);
-              },
+              onAdd: (role == 'helpdesk')
+                  ? () {
+                      _navigateAndDisplayResult(context);
+                    }
+                  : null,
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
@@ -298,7 +365,7 @@ class _ListPaketPageState extends State<ListPaketPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(
+                  /*const SizedBox(
                     width: 10,
                   ),
                   Container(
@@ -308,7 +375,7 @@ class _ListPaketPageState extends State<ListPaketPage> {
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: kGrey),
                       ),
-                      child: const Icon(Icons.filter_alt)),
+                      child: const Icon(Icons.filter_alt)),*/
                 ],
               ),
             ),
@@ -336,18 +403,36 @@ class _ListPaketPageState extends State<ListPaketPage> {
                               pakets_belum.length,
                               (index) => Stack(children: [
                                     InkWell(
-                                      onTap: () {
-                                        showPaketDetail(pakets_belum[index]);
-                                      },
-                                      child: PaketCard(
-                                        paket: pakets_belum[index],
-                                      ),
-                                    ),
+                                        onTap: () {
+                                          showPaketDetail(pakets_belum[index]);
+                                        },
+                                        child: GestureDetector(
+                                          onLongPress: () {
+                                            confirmDialog(
+                                                context,
+                                                "Konfirmasi Penghapusan",
+                                                "Apakah anda yakin ingin menghapus data paket ini?",
+                                                () async {
+                                              await deletePaket(
+                                                  pakets_belum[index]
+                                                      ['paket_id']);
+                                              Navigator.of(context).pop();
+                                              await getPaket();
+                                            });
+                                          },
+                                          child: PaketCard(
+                                            paket: pakets_belum[index],
+                                          ),
+                                        )),
                                     Positioned(
                                       top: 15,
                                       right: 10,
                                       child: GestureDetector(
-                                        onTap: () {},
+                                        onTap: () async {
+                                          await updatePaket(
+                                              pakets_belum[index]['paket_id']);
+                                          await getPaket();
+                                        },
                                         child: Container(
                                           alignment: Alignment.center,
                                           decoration: BoxDecoration(
@@ -401,8 +486,22 @@ class _ListPaketPageState extends State<ListPaketPage> {
                                     onTap: () {
                                       showPaketDetail(pakets_sudah[index]);
                                     },
-                                    child: PaketCard(
-                                      paket: pakets_sudah[index],
+                                    child: GestureDetector(
+                                      onLongPress: () {
+                                        confirmDialog(
+                                            context,
+                                            "Konfirmasi Penghapusan",
+                                            "Apakah anda yakin ingin menghapus data paket ini",
+                                            () async {
+                                          await deletePaket(
+                                              pakets_sudah[index]['paket_id']);
+                                          Navigator.of(context).pop();
+                                          await getPaket();
+                                        });
+                                      },
+                                      child: PaketCard(
+                                        paket: pakets_sudah[index],
+                                      ),
                                     ),
                                   )),
                         ),
