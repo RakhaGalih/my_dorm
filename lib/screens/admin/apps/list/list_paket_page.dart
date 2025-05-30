@@ -26,7 +26,7 @@ class _ListPaketPageState extends State<ListPaketPage> {
   String? role;
   // ignore: unused_field
   bool _showSpinner = false;
-
+  final TextEditingController _searchController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -38,7 +38,7 @@ class _ListPaketPageState extends State<ListPaketPage> {
     return DateFormat('dd MMM yyyy, HH:mm').format(dateTime);
   }
 
-  Future<void> getPaket() async {
+  Future<void> getPaket({String? search}) async {
     error = "";
     setState(() {
       _showSpinner = true;
@@ -49,22 +49,27 @@ class _ListPaketPageState extends State<ListPaketPage> {
       pakets_sudah.clear();
       role = await getRole();
       String? token = await getToken();
-      var response = await getDataToken('/paket/all', token!);
+      String queryString = '';
+      if (search != null && search.isNotEmpty) {
+        queryString = '?search=${Uri.encodeQueryComponent(search)}';
+      }
+      var response = await getDataToken('/paket/all$queryString', token!);
       if (response['data'] != null) {
         setState(() {
           pakets = (response['data'] as List)
               .map((item) => item as Map<String, dynamic>)
               .toList();
-        });
-        print('Data Paket: $pakets');
-
-        for (int i = 0; i < pakets.length; i++) {
-          if (pakets[i]["status_pengambilan"] == "belum") {
-            pakets_belum.add(pakets[i]);
-          } else {
-            pakets_sudah.add(pakets[i]);
+          print('Data Paket: $pakets');
+          pakets_belum = [];
+          pakets_sudah = [];
+          for (int i = 0; i < pakets.length; i++) {
+            if (pakets[i]["status_pengambilan"] == "belum") {
+              pakets_belum.add(pakets[i]);
+            } else {
+              pakets_sudah.add(pakets[i]);
+            }
           }
-        }
+        });
       } else {
         setState(() {
           error = "Data paket dormitizen kosong.";
@@ -321,7 +326,7 @@ class _ListPaketPageState extends State<ListPaketPage> {
 
     // Check what was returned and act accordingly
     if (result != null) {
-      await getPaket();
+      await getPaket(search: _searchController.text);
       if (mounted) {
         setState(() {});
       }
@@ -354,13 +359,23 @@ class _ListPaketPageState extends State<ListPaketPage> {
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: kGrey),
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
                           Icon(Icons.search),
                           SizedBox(
                             width: 5,
                           ),
-                          Text('Cari')
+                          Expanded(
+                              child: TextField(
+                            controller: _searchController,
+                            decoration: InputDecoration(
+                                hintText: 'nama penerima',
+                                border: InputBorder.none,
+                                isDense: true),
+                            onChanged: (value) {
+                              getPaket(search: value);
+                            },
+                          ))
                         ],
                       ),
                     ),

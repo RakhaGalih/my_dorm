@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:googleapis/iam/v1.dart';
 import 'package:my_dorm/components/appbar_page.dart';
 import 'package:my_dorm/components/gradient_button.dart';
 import 'package:my_dorm/components/info_card.dart';
@@ -19,6 +20,7 @@ class _ListInformasiPageState extends State<ListInformasiPage> {
   List<Map<String, dynamic>> informasis = [];
   String error = "";
   bool _showSpinner = false;
+  final TextEditingController _searchController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -33,14 +35,18 @@ class _ListInformasiPageState extends State<ListInformasiPage> {
     await getInformasi();
   }
 
-  Future<void> getInformasi() async {
+  Future<void> getInformasi({String? search}) async {
     error = "";
     setState(() {
       _showSpinner = true;
     });
     try {
       String? token = await getToken();
-      var response = await getDataToken('/informasi', token!);
+      String queryString = '';
+      if (search != null && search.isNotEmpty) {
+        queryString = '?search=${Uri.encodeQueryComponent(search)}';
+      }
+      var response = await getDataToken('/informasi$queryString', token!);
       List<Map<String, dynamic>> parsedData = (response['data'] as List)
           .map((item) => item as Map<String, dynamic>)
           .toList();
@@ -66,7 +72,7 @@ class _ListInformasiPageState extends State<ListInformasiPage> {
 
     // Check what was returned and act accordingly
     if (result != null) {
-      await getInformasi();
+      await getInformasi(search: _searchController.text);
       if (mounted) {
         setState(() {});
       }
@@ -175,11 +181,21 @@ class _ListInformasiPageState extends State<ListInformasiPage> {
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: kGrey),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(Icons.search),
                         SizedBox(width: 5),
-                        Text('Cari')
+                        Expanded(
+                            child: TextField(
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                              hintText: 'cari judul',
+                              border: InputBorder.none,
+                              isDense: true),
+                          onChanged: (value) {
+                            getInformasi(search: value);
+                          },
+                        ))
                       ],
                     ),
                   ),
