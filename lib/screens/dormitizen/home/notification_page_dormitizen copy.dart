@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:developer' as dev;
-import 'package:intl/intl.dart';
+
+import 'package:flutter/material.dart';
 import 'package:my_dorm/components/appbar_page.dart';
 import 'package:my_dorm/components/shadow_container.dart';
 import 'package:my_dorm/constant/constant.dart';
@@ -112,15 +112,19 @@ class _NotificationPageDormitizenState
                           children: [
                             Row(
                               children: [
-                                Text(
-                                  notification['judul'],
-                                  style: kBoldTextStyle.copyWith(fontSize: 14),
+                                Expanded(
+                                  child: Text(
+                                    notification['judul'],
+                                    style:
+                                        kBoldTextStyle.copyWith(fontSize: 14),
+                                  ),
                                 ),
-                                const Spacer(),
-                                Text(
-                                  waktuLalu(notification['created_at']),
-                                  style: kMediumTextStyle.copyWith(
-                                      fontSize: 14, color: kGrey),
+                                Expanded(
+                                  child: Text(
+                                    waktuLalu(notification['created_at']),
+                                    style: kMediumTextStyle.copyWith(
+                                        fontSize: 14, color: kGrey),
+                                  ),
                                 ),
                               ],
                             ),
