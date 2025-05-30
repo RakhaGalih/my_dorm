@@ -6,10 +6,10 @@ import 'package:my_dorm/service/converter.dart';
 import 'package:my_dorm/service/http_service.dart';
 import 'package:my_dorm/service/image_service.dart';
 
-class PaketCard extends StatelessWidget {
+class MyPaketCard extends StatelessWidget {
   final Map<String, dynamic> paket;
 
-  const PaketCard({
+  const MyPaketCard({
     super.key,
     required this.paket,
   });
@@ -45,9 +45,8 @@ class PaketCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if(paket['pemilik_paket']['kamar'] != null)
                 Text(
-                  "Kamar ${paket['pemilik_paket']['kamar']['nomor'] ?? 'Tidak diketahui'}",
+                  paket['pemilik_paket']['nama'] ?? 'Tidak diketahui',
                   style: kBoldTextStyle.copyWith(fontSize: 15),
                 ),
                 const SizedBox(height: 5),
@@ -67,20 +66,6 @@ class PaketCard extends StatelessWidget {
                       )
                     ],
                   ),
-                const SizedBox(height: 5),
-                Row(
-                  children: [
-                    const Icon(
-                      FontAwesomeIcons.solidCircleUser,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      paket['pemilik_paket']['nama'] ?? 'Tidak diketahui',
-                      style: kSemiBoldTextStyle.copyWith(fontSize: 12),
-                    )
-                  ],
-                ),
                 const SizedBox(height: 5),
                 Row(
                   children: [
