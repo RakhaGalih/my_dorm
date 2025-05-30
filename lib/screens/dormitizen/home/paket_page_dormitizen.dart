@@ -83,7 +83,7 @@ class _PaketPageDormitizenState extends State<PaketPageDormitizen> {
         child: Column(
           children: [
             SizedBox(
-              height: 250,
+              height: 145,
               child: Stack(children: [
                 Container(
                   width: double.infinity,
@@ -115,7 +115,7 @@ class _PaketPageDormitizenState extends State<PaketPageDormitizen> {
                         ],
                       ),
                     ),
-                    const SizedBox(
+                   /* const SizedBox(
                       height: 20,
                     ),
                     Padding(
@@ -147,7 +147,7 @@ class _PaketPageDormitizenState extends State<PaketPageDormitizen> {
                           )
                         ],
                       ),
-                    )
+                    )*/
                   ],
                 ),
               ]),
