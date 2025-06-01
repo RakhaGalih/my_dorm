@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:my_dorm/components/appbar_home.dart';
 import 'package:my_dorm/components/info_card.dart';
+import 'package:my_dorm/components/log_box.dart';
 import 'package:my_dorm/constant/constant.dart';
+import 'package:my_dorm/models/request_model.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_my_log.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
 import 'package:my_dorm/screens/dormitizen/home/my_informasi_list.dart';
@@ -19,6 +21,7 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
   String nama = 'loading...';
   List<Map<String, dynamic>> pakets = [];
   List<Map<String, dynamic>> informasis = [];
+  List<RequestModel> logs = [];
   String error = "";
   String statusKamar = '';
   String waktuSekarang = '';
@@ -31,6 +34,7 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
     super.initState();
     waktuSekarang = getFormattedTime();
     _getInfoUser();
+    fetchLogs();
     _getStatusKamar();
     _getInformasi();
   }
@@ -71,6 +75,24 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
     setState(() {
       _showSpinner = false;
     });
+  }
+
+  Future<void> fetchLogs() async {
+    try {
+      setState(() {
+        _showSpinner = true;
+      });
+      final result = await fetchLogKeluarMasukOfDormitizen(); // dari service
+      setState(() {
+        logs = result;
+        _showSpinner = false;
+      });
+    } catch (e) {
+      print("Gagal mengambil log: $e");
+      setState(() {
+        _showSpinner = false;
+      });
+    }
   }
 
   void _getStatusKamar() async {
@@ -224,7 +246,8 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const MyListInformasiPage()));
+                                builder: (context) =>
+                                    const MyListInformasiPage()));
                       },
                       child: Text(
                         'Lihat Semua',
@@ -269,6 +292,17 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
                 ),
               ],
             ),
+          ),
+          Column(
+              children: List.generate(
+                  (logs.length>3) ? 3 : logs.length,
+                  (index) => LogBox(
+                        nama: logs[index].name,
+                        type: logs[index].type,
+                        date: logs[index].date,
+                      ))),
+          const SizedBox(
+            height: 100,
           ),
         ]));
   }
