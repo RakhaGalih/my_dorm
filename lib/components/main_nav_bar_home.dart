@@ -1,4 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_dorm/components/nav_icon.dart';
@@ -24,16 +26,21 @@ class MainNavBarHome extends StatefulWidget {
 class _MainNavBarHomeState extends State<MainNavBarHome> {
   String statusKamar = '';
   bool isLoading = true;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     fetchStatus();
+
+    _timer = Timer.periodic(const Duration(seconds: 5), (_) {
+      fetchStatus();
+    });
   }
 
   Future<void> fetchStatus() async {
     try {
-      final result = await fetchStatusKamar(); // <-- fungsi dari jawaban sebelumnya
+      final result = await fetchStatusKamar();
       setState(() {
         statusKamar = result;
         isLoading = false;
@@ -86,59 +93,64 @@ class _MainNavBarHomeState extends State<MainNavBarHome> {
                           ),
                         ),
                       Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            confirmDialog(
-                              context,
-                              "Konfirmasi Request",
-                              "Apakah Anda yakin ingin mengajukan request keluar/masuk?",
-                              () async {
-                                Navigator.of(context)
-                                    .pop(); // Tutup dialog dulu
-                                try {
-                                  await requestKeluarMasuk(); // Fungsi untuk panggil API
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content:
-                                            Text('Request berhasil dikirim')),
-                                  );
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content:
-                                            Text('Gagal mengirim request')),
-                                  );
-                                }
-                              },
-                            );
-                          },
-
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 70,
-                                height: 70,
-                                decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    gradient: kGradientMain),
-                                child:  Icon(
-                                  statusKamar == "Kamar terkunci"
-                                  ? FontAwesomeIcons.doorClosed
-                                  : FontAwesomeIcons.doorOpen,
-                                  color: kWhite,
+                        child:IgnorePointer(
+                          ignoring: statusKamar == "pending",
+                          child: GestureDetector(
+                            onTap: () {
+                              confirmDialog(
+                                context,
+                                "Konfirmasi Request",
+                                "Apakah Anda yakin ingin mengajukan request keluar/masuk?",
+                                () async {
+                                  Navigator.of(context)
+                                      .pop(); // Tutup dialog dulu
+                                  try {
+                                    await requestKeluarMasuk(); // Fungsi untuk panggil API
+                                    await fetchStatus();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content:
+                                              Text('Request berhasil dikirim')),
+                                    );
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content:
+                                              Text('Gagal mengirim request')),
+                                    );
+                                  }
+                                },
+                              );
+                            },
+                          
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 70,
+                                  height: 70,
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: statusKamar == "pending" ? kGrey : null,
+                                      gradient: statusKamar == "pending" ? null : kGradientMain,),
+                                  child:  Icon(
+                                    statusKamar == "Kamar terkunci"
+                                    ? FontAwesomeIcons.doorClosed
+                                    : statusKamar == "Kamar terbuka" ? FontAwesomeIcons.doorOpen : FontAwesomeIcons.hourglassHalf,
+                                    color: kWhite,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(
-                                height: 3,
-                              ),
-                              Text(
-                                statusKamar == "Kamar terkunci" ? 'Masuk' : 'Keluar',
-                                style: kSemiBoldTextStyle.copyWith(
-                                    fontSize: 14, color: kRed),
-                              ),
-                            ],
+                                const SizedBox(
+                                  height: 3,
+                                ),
+                                Text(
+                                   statusKamar == "Kamar terkunci" ? 'Masuk' : statusKamar == "Kamar terbuka" ? 'Keluar' : 'Pending',
+                                  style: kSemiBoldTextStyle.copyWith(
+                                      fontSize: 14, color: kRed),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
