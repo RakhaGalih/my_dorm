@@ -13,6 +13,7 @@ import 'package:my_dorm/screens/admin/apps/list/list_paket_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_riwayat_request_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_statistik_page.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
+import 'package:my_dorm/service/converter.dart';
 import 'package:my_dorm/service/http_service.dart';
 
 class HomePageSR extends StatefulWidget {
@@ -29,14 +30,18 @@ class _HomePageSRState extends State<HomePageSR> {
   String kamarTerbuka = '0';
   String kamarTertutup = '0';
   String error = "";
+  String statusKamar = '';
+  String waktuSekarang = '';
   bool _showSpinner = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    waktuSekarang = getFormattedTime();
     _getInfo();
     _getInfoKamar();
+    _getStatusKamar();
     _getLogKeluarMasuk();
   }
 
@@ -113,6 +118,31 @@ class _HomePageSRState extends State<HomePageSR> {
     });
   }
 
+  void _getStatusKamar() async {
+    error = "";
+    setState(() {
+      _showSpinner = true;
+    });
+    try {
+      String? token = await getToken();
+      var response = await getDataToken('/kamar/status', token!);
+      print(response);
+
+      setState(() {
+        statusKamar = response['data']['status'];
+      });
+    } catch (e) {
+      print(e);
+      setState(() {
+        error = "Error: $e";
+      });
+    } finally {
+      setState(() {
+        _showSpinner = false;
+      });
+    }
+  }
+
   void _getLogKeluarMasuk() async {
     setState(() {
       error = "";
@@ -185,7 +215,7 @@ class _HomePageSRState extends State<HomePageSR> {
                                         CrossAxisAlignment.start,
                                     children: [
                                   Text(
-                                    'Selamat pagi,',
+                                    'Selamat $waktuSekarang,',
                                     style: kSemiBoldTextStyle.copyWith(
                                         color: kWhite, fontSize: 15),
                                   ),
@@ -250,6 +280,46 @@ class _HomePageSRState extends State<HomePageSR> {
                   children: [
                     const SizedBox(
                       height: 20,
+                    ),
+                    Container(
+                        padding: const EdgeInsets.all(18),
+                        margin: const EdgeInsets.symmetric(horizontal: 30),
+                        decoration: BoxDecoration(
+                          color: kRed,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.info_outline,
+                              size: 18,
+                              color: kWhite,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Wrap(
+                                children: [
+                                  Text(
+                                    'Kunci Anda Sekarang berada di ',
+                                    style: kRegularTextStyle.copyWith(
+                                        color: kWhite, fontSize: 12),
+                                  ),
+                                  Text(
+                                    (statusKamar == '')
+                                        ? 'Loading...'
+                                        : (statusKamar == 'terkunci')
+                                            ? 'Helpdesk'
+                                            : 'Kamar Anda',
+                                    style: kBoldTextStyle.copyWith(
+                                        color: kWhite, fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        )),
+                    const SizedBox(
+                      height: 12,
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(

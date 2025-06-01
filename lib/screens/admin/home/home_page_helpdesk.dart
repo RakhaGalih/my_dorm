@@ -1,5 +1,4 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_dorm/components/appbar_home.dart';
@@ -9,12 +8,11 @@ import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/models/request_model.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_informasi_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_paket_page.dart';
-import 'package:my_dorm/screens/admin/apps/list/list_pelanggaran_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_riwayat_request_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_statistik_page.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
+import 'package:my_dorm/service/converter.dart';
 import 'package:my_dorm/service/http_service.dart';
-import 'package:my_dorm/service/myfirebasenotification_service.dart';
 
 class HomePageHelpdesk extends StatefulWidget {
   const HomePageHelpdesk({
@@ -30,12 +28,14 @@ class _HomePageHelpdeskState extends State<HomePageHelpdesk> {
   String kamarTerbuka = '0';
   String kamarTertutup = '0';
   String error = "";
+  String waktuSekarang = '';
   bool _showSpinner = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    waktuSekarang = getFormattedTime();
     _getInfo();
     _getInfoKamar();
     _getLogKeluarMasuk();
@@ -140,6 +140,7 @@ class _HomePageHelpdeskState extends State<HomePageHelpdesk> {
         requests.removeWhere((r) => r.id == item.id);
       });
     }
+
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
@@ -179,7 +180,7 @@ class _HomePageHelpdeskState extends State<HomePageHelpdesk> {
                                         CrossAxisAlignment.start,
                                     children: [
                                   Text(
-                                    'Selamat pagi,',
+                                    'Selamat $waktuSekarang,',
                                     style: kSemiBoldTextStyle.copyWith(
                                         color: kWhite, fontSize: 15),
                                   ),
@@ -303,11 +304,15 @@ class _HomePageHelpdeskState extends State<HomePageHelpdesk> {
                                           nama: pendingRequests[index].name,
                                           type: pendingRequests[index].type,
                                           onAccept: () async {
-                                            await updateStatusLog(pendingRequests[index].id,'diterima');
+                                            await updateStatusLog(
+                                                pendingRequests[index].id,
+                                                'diterima');
                                             popList(pendingRequests[index]);
                                           },
                                           onReject: () async {
-                                            await updateStatusLog(pendingRequests[index].id,'ditolak');
+                                            await updateStatusLog(
+                                                pendingRequests[index].id,
+                                                'ditolak');
                                             popList(pendingRequests[index]);
                                           },
                                         ))),

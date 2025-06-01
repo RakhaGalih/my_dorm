@@ -3,6 +3,7 @@ import 'package:my_dorm/components/appbar_home.dart';
 import 'package:my_dorm/components/info_card.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
+import 'package:my_dorm/service/converter.dart';
 import 'package:my_dorm/service/http_service.dart';
 
 class HomePageDormitizen extends StatefulWidget {
@@ -18,6 +19,7 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
   List<Map<String, dynamic>> informasis = [];
   String error = "";
   String statusKamar = '';
+  String waktuSekarang = '';
   // ignore: unused_field
   bool _showSpinner = false;
 
@@ -25,6 +27,7 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    waktuSekarang = getFormattedTime();
     _getInfoUser();
     _getStatusKamar();
     _getInformasi();
@@ -146,7 +149,7 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Selamat pagi,',
+                        'Selamat $waktuSekarang,',
                         style: kSemiBoldTextStyle.copyWith(
                             color: kWhite, fontSize: 15),
                       ),
