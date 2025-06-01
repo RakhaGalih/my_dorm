@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:my_dorm/components/appbar_home.dart';
 import 'package:my_dorm/components/info_card.dart';
 import 'package:my_dorm/constant/constant.dart';
+import 'package:my_dorm/screens/admin/apps/list/list_my_log.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
+import 'package:my_dorm/screens/dormitizen/home/my_informasi_list.dart';
 import 'package:my_dorm/service/converter.dart';
 import 'package:my_dorm/service/http_service.dart';
 
@@ -219,7 +221,10 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, '/list-informasi');
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const MyListInformasiPage()));
                       },
                       child: Text(
                         'Lihat Semua',
@@ -249,7 +254,10 @@ class _HomePageDormitizenState extends State<HomePageDormitizen> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, '/list-informasi');
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const ListMyLog()));
                       },
                       child: Text(
                         'Lihat Semua',
