@@ -1,6 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:my_dorm/components/main_nav_bar_home.dart';
+import 'package:my_dorm/components/main_nav_bar_home_hd.dart';
 import 'package:my_dorm/models/navbar_model.dart';
 import 'package:my_dorm/screens/admin/home/home_page_helpdesk.dart';
 import 'package:my_dorm/screens/admin/home/list_kamar_page_admin.dart';
@@ -15,10 +16,6 @@ class NavBarHelpdesk extends StatelessWidget {
       title: 'kamar',
     ),
     NavBarModel(
-      icon: FluentIcons.alert_24_filled,
-      title: 'Notifikasi',
-    ),
-    NavBarModel(
       icon: FluentIcons.person_24_filled,
       title: 'Profil',
     ),
@@ -26,13 +23,12 @@ class NavBarHelpdesk extends StatelessWidget {
   final List<Widget> widgetOptions = <Widget>[
     const HomePageHelpdesk(),
     const ListKamarPageAdmin(),
-    const NotificationPageAdmin(),
     const ProfilPageAdmin(),
   ];
   NavBarHelpdesk({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MainNavBarHome(widgetOptions: widgetOptions, navIcons: navIcons);
+    return MainNavBarHomeHD(widgetOptions: widgetOptions, navIcons: navIcons);
   }
 }
