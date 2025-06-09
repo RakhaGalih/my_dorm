@@ -85,7 +85,7 @@ class _ProfilPageDromitizenState extends State<ProfilPageDromitizen> {
       response = await logout(token!);
       await removeToken();
       if (mounted) {
-        Navigator.push(context,
+        Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => const LoginPage()));
       }
       print('berhasil logout!');
