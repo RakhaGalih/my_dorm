@@ -7,6 +7,7 @@ import 'package:my_dorm/components/shadow_container.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
 import 'package:my_dorm/service/http_service.dart';
+import 'package:my_dorm/service/myfirebasenotification_service.dart';
 
 class ProfilPageDromitizen extends StatefulWidget {
   const ProfilPageDromitizen({super.key});
@@ -81,12 +82,18 @@ class _ProfilPageDromitizenState extends State<ProfilPageDromitizen> {
     });
     Map<String, dynamic> response = {};
     try {
+      String? tokenFirebaseNotification =
+          await FirebaseNotificationService.getToken();
+      await deleteTokenFCM(tokenFirebaseNotification);
+      print('Firebase token: $tokenFirebaseNotification berhasil dihapus');
       String? token = await getToken();
       response = await logout(token!);
       await removeToken();
       if (mounted) {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const LoginPage()));
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+          (Route<dynamic> route) => false,
+        );
       }
       print('berhasil logout!');
       String? accessToken = await getToken();
