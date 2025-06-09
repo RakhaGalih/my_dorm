@@ -303,6 +303,24 @@ Future<dynamic> postTokenFCM(String fcmtoken) async {
   _handleResponse(response);
 }
 
+Future<dynamic> deleteTokenFCM(String fcmtoken) async {
+  String address = "/notification/deleteToken";
+  final uri = Uri.parse(apiURL + address);
+  String? token = await getToken();
+  final response = await http.delete(
+    uri,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    },
+    body: jsonEncode({
+      "fcm_token": fcmtoken,
+    }),
+  );
+
+  _handleResponse(response);
+}
+
 // delete request dengan token
 Future<dynamic> deleteDataToken(String endpoint) async {
   final uri = Uri.parse('$apiURL$endpoint');
