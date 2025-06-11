@@ -20,6 +20,13 @@ class _ListInformasiPageState extends State<ListInformasiPage> {
   List<Map<String, dynamic>> informasis = [];
   String error = "";
   bool _showSpinner = false;
+  String? _selectedKategori;
+  final List<Map<String, String>> _kategoriList = [
+    {'label': 'Fasilitas asrama', 'value': 'fasilitas asrama'},
+    {'label': 'Event asrama', 'value': 'event asrama'},
+    {'label': 'Lingkungan asrama', 'value': 'lingkungan asrama'},
+    {'label': 'Peraturan asrama', 'value': 'peraturan asrama'},
+  ];
   final TextEditingController _searchController = TextEditingController();
   @override
   void initState() {
@@ -35,17 +42,22 @@ class _ListInformasiPageState extends State<ListInformasiPage> {
     await getInformasi();
   }
 
-  Future<void> getInformasi({String? search}) async {
+  Future<void> getInformasi({String? search, String? kategori}) async {
     error = "";
     setState(() {
       _showSpinner = true;
     });
     try {
       String? token = await getToken();
-      String queryString = '';
+      List<String> queryParams = [];
       if (search != null && search.isNotEmpty) {
-        queryString = '?search=${Uri.encodeQueryComponent(search)}';
+        queryParams.add('search=${Uri.encodeQueryComponent(search)}');
       }
+      if (kategori != null && kategori.isNotEmpty) {
+        queryParams.add('kategori=${Uri.encodeQueryComponent(kategori)}');
+      }
+      String queryString =
+          queryParams.isNotEmpty ? '?${queryParams.join('&')}' : '';
       var response = await getDataToken('/informasi$queryString', token!);
       List<Map<String, dynamic>> parsedData = (response['data'] as List)
           .map((item) => item as Map<String, dynamic>)
@@ -208,7 +220,26 @@ class _ListInformasiPageState extends State<ListInformasiPage> {
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: kGrey),
                   ),
-                  child: const Icon(Icons.filter_alt),
+                  child: PopupMenuButton<String>(
+                    icon: const Icon(Icons.filter_alt),
+                    onSelected: (String value) {
+                      setState(() {
+                        _selectedKategori = value;
+                      });
+                      getInformasi(
+                        search: _searchController.text,
+                        kategori: value,
+                      );
+                    },
+                    itemBuilder: (BuildContext context) {
+                      return _kategoriList.map((item) {
+                        return PopupMenuItem<String>(
+                          value: item['value']!,
+                          child: Text(item['label']!),
+                        );
+                      }).toList();
+                    },
+                  ),
                 ),
               ],
             ),
