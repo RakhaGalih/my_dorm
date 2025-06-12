@@ -183,64 +183,76 @@ class _ListInformasiPageState extends State<ListInformasiPage> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(30, 20, 30, 0),
-            child: Row(
+            child: Column(
               children: [
-                Expanded(
-                  child: Container(
-                    height: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: kGrey),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 50,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: kGrey),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.search),
+                            SizedBox(width: 5),
+                            Expanded(
+                                child: TextField(
+                              controller: _searchController,
+                              decoration: InputDecoration(
+                                  hintText: 'cari judul',
+                                  border: InputBorder.none,
+                                  isDense: true),
+                              onChanged: (value) {
+                                getInformasi(search: value);
+                              },
+                            ))
+                          ],
+                        ),
+                      ),
                     ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.search),
-                        SizedBox(width: 5),
-                        Expanded(
-                            child: TextField(
-                          controller: _searchController,
-                          decoration: InputDecoration(
-                              hintText: 'cari judul',
-                              border: InputBorder.none,
-                              isDense: true),
-                          onChanged: (value) {
-                            getInformasi(search: value);
-                          },
-                        ))
-                      ],
+                    const SizedBox(width: 10),
+                    Container(
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: kGrey),
+                      ),
+                      child: PopupMenuButton<String>(
+                        icon: const Icon(Icons.filter_alt),
+                        onSelected: (String value) {
+                          setState(() {
+                            _selectedKategori = value;
+                          });
+                          getInformasi(
+                            search: _searchController.text,
+                            kategori: value,
+                          );
+                        },
+                        itemBuilder: (BuildContext context) {
+                          return _kategoriList.map((item) {
+                            return PopupMenuItem<String>(
+                              value: item['value']!,
+                              child: Text(item['label']!),
+                            );
+                          }).toList();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                if (_selectedKategori != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text(
+                      'Filter: ${_kategoriList.firstWhere((item) => item['value'] == _selectedKategori)['label']}',
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: kGrey),
-                  ),
-                  child: PopupMenuButton<String>(
-                    icon: const Icon(Icons.filter_alt),
-                    onSelected: (String value) {
-                      setState(() {
-                        _selectedKategori = value;
-                      });
-                      getInformasi(
-                        search: _searchController.text,
-                        kategori: value,
-                      );
-                    },
-                    itemBuilder: (BuildContext context) {
-                      return _kategoriList.map((item) {
-                        return PopupMenuItem<String>(
-                          value: item['value']!,
-                          child: Text(item['label']!),
-                        );
-                      }).toList();
-                    },
-                  ),
-                ),
               ],
             ),
           ),

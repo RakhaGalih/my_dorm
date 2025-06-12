@@ -337,8 +337,11 @@ Future<dynamic> deleteDataToken(String endpoint) async {
 }
 
 // get all log keluar masuk (gedung ini)
-Future<List<RequestModel>> fetchLogKeluarMasuk() async {
+Future<List<RequestModel>> fetchLogKeluarMasuk({String? queryString}) async {
   String address = "/log-keluar-masuk";
+  if (queryString != null) {
+    address += queryString;
+  }
   final uri = Uri.parse(apiURL + address);
   String? token = await getToken();
 
@@ -448,7 +451,6 @@ Future<dynamic> addLogManual(Map<String, String> data) async {
     throw Exception(responseBody['message'] ?? 'Gagal mengirim data');
   }
 }
-
 
 Future<dynamic> updateDataTokenTanpaBody(String endpoint) async {
   final uri = Uri.parse('$apiURL$endpoint');
