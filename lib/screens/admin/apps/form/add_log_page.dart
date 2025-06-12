@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:my_dorm/components/appbar_page.dart';
 import 'package:my_dorm/components/form_date_time_picker.dart';
@@ -21,9 +22,54 @@ class _AddLogPageState extends State<AddLogPage> {
   final TextEditingController _kamarController = TextEditingController();
   String waktu = "";
   String? selectedDormitizen;
-  String? selectedKategori;
   String error = "";
+  String infoSnackbar = "";
   bool _showSpinner = false;
+
+  Future<void> _addLogManual() async {
+    error = "";
+    setState(() {
+      _showSpinner = true;
+    });
+
+    dynamic response = {};
+    try {
+      if (selectedDormitizen == null) {
+        throw Exception("Dormitizen harus dipilih");
+      }
+
+      Map<String, String> data = {
+        'dormitizen_id': selectedDormitizen!,
+        'waktu': waktu,
+      };
+
+      debugPrint('Data to be sent: $data');
+
+      response = await addLogManual(data);
+      debugPrint('Response from add log manual: $response');
+
+      if (mounted) {
+        setState(() {
+          infoSnackbar = 'Log berhasil ditambahkan!';
+        });
+      } else {
+        setState(() {
+          infoSnackbar = 'Gagal menambahkan log';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        error = "${response['message'] ?? 'Terjadi kesalahan.'}";
+        infoSnackbar = 'Log gagal ditambahkan!';
+      });
+      debugPrint('Add log error: $e');
+    }
+
+    setState(() {
+      _showSpinner = false;
+    });
+  }
+
   Future<void> searchDormitizen(String nomorKamar) async {
     error = "";
     setState(() {
@@ -32,10 +78,10 @@ class _AddLogPageState extends State<AddLogPage> {
     try {
       dormitizenDataList.clear();
       String? token = await getToken();
-      var response = await getDataToken('/user/$nomorKamar', token!);
+      var response = await getDataToken('/dormitizen/$nomorKamar', token!);
 
-      if (response['response'] != null) {
-        List<Map<String, dynamic>> dormitizens = (response['response'] as List)
+      if (response['data'] != null) {
+        List<Map<String, dynamic>> dormitizens = (response['data'] as List)
             .map((item) => item as Map<String, dynamic>)
             .toList();
         for (var dormitizen in dormitizens) {
@@ -88,7 +134,8 @@ class _AddLogPageState extends State<AddLogPage> {
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
-                        decoration: basicInputDecoration("Nomor kamar").copyWith(
+                        decoration:
+                            basicInputDecoration("Nomor kamar").copyWith(
                           suffixIcon: IconButton(
                             onPressed: () async {
                               await searchDormitizen(_kamarController.text);
@@ -128,37 +175,33 @@ class _AddLogPageState extends State<AddLogPage> {
                           },
                         ),
                       ),
-                      FormDropDown(
-                        kategoriItems: const ['Masuk', 'Keluar'],
-                        title: 'Status',
-                        onItemSelected: (selectedItem) {
-                          // Handle the selected item here
-                          print('Selected item: $selectedItem');
-                        },
-                      ),
                       FormDatePicker(
-                        onDateTimeSelected: (selectedDateTime) {
-                          // Handle the combined DateTime here
-                          print('Selected DateTime: $selectedDateTime');
-                        },
-                      ),
+                          onDateTimeSelected: (selectedDateTime) {
+                            String formattedDate =
+                                DateFormat('yyyy-MM-dd HH:mm:ss')
+                                    .format(selectedDateTime!);
+                            waktu = formattedDate;
+                          },
+                        ),
                       GradientButton(
-                          ontap: () {
+                          ontap: () async {
                             if (_formKey.currentState?.validate() ?? false) {
                               try {
-                                //_addInformasi();
-        
-                                // Create the SnackBar
-                                const snackBar = SnackBar(
-                                  content: Text('Data berhasil ditambahkan!'),
-                                );
-        
-                                // Show the SnackBar
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(snackBar);
-                                Navigator.pop(context, 'sesuatu');
+                                await _addLogManual();
+                                if (infoSnackbar ==
+                                    'Log berhasil ditambahkan!') {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(infoSnackbar)));
+                                  Navigator.pop(context, 'refresh');
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(infoSnackbar)));
+                                }
                               } catch (e) {
-                                print(e);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text('Terjadi kesalahan: $e')),
+                                );
                               }
                             }
                           },

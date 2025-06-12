@@ -408,6 +408,30 @@ Future<void> requestKeluarMasuk() async {
   }
 }
 
+// Tambah Log Keluar/Masuk Manual
+Future<dynamic> addLogManual(Map<String, String> data) async {
+  final uri = Uri.parse('$apiURL/log-keluar-masuk/tambah');
+  String? token = await getToken();
+
+  final response = await http.post(
+    uri,
+    headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode(data),
+  );
+
+  final responseBody = jsonDecode(response.body);
+
+  if (response.statusCode >= 200 && response.statusCode < 300) {
+    return responseBody;
+  } else {
+    throw Exception(responseBody['message'] ?? 'Gagal mengirim data');
+  }
+}
+
+
 Future<dynamic> updateDataTokenTanpaBody(String endpoint) async {
   final uri = Uri.parse('$apiURL$endpoint');
   String? token = await getToken();
