@@ -3,7 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:my_dorm/constant/constant.dart';
 
 class FormDatePicker extends StatefulWidget {
-  final ValueChanged<DateTime?> onDateTimeSelected; // Callback for combined DateTime
+  final ValueChanged<DateTime?>
+      onDateTimeSelected; // Callback for combined DateTime
 
   const FormDatePicker({
     super.key,
@@ -22,8 +23,8 @@ class _FormDatePickerState extends State<FormDatePicker> {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: selectedDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+      firstDate: DateTime(2017),
+      lastDate: DateTime.now(),
     );
     if (pickedDate != null && pickedDate != selectedDate) {
       setState(() {

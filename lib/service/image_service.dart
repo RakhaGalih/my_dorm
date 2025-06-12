@@ -5,37 +5,52 @@ import 'package:image_picker/image_picker.dart';
 import 'package:my_dorm/constant/constant.dart';
 
 class MyNetworkImage extends StatelessWidget {
-  final String imageURL;
+  final String? imageURL;
   final double? width;
   final double? height;
+  final double? nullHeight;
   final BoxFit? fit;
   const MyNetworkImage({
     super.key,
     required this.imageURL,
     this.width,
     this.height,
+    this.nullHeight,
     this.fit,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Image.network(imageURL, width: width, height: height, fit: fit,
+    if (imageURL == null || imageURL!.isEmpty) {
+      return Container(
+        width: width,
+        height: nullHeight ?? height,
+        color: Colors.grey[300],
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.image_not_supported),
+            Text(
+              'No image available',
+              textAlign: TextAlign.center,
+            )
+          ],
+        ),
+      );
+    }
+    return Image.network(imageURL!, width: width, height: height, fit: fit,
         loadingBuilder: (BuildContext context, Widget child,
             ImageChunkEvent? loadingProgress) {
       if (loadingProgress == null) {
         return child;
       } else {
         return Center(
-          child: SizedBox(
-            width: width,
-            height: height,
-            child: CircularProgressIndicator(
-              color: kMain,
-              value: loadingProgress.expectedTotalBytes != null
-                  ? loadingProgress.cumulativeBytesLoaded /
-                      (loadingProgress.expectedTotalBytes ?? 1)
-                  : null,
-            ),
+          child: CircularProgressIndicator(
+            color: kRed,
+            value: loadingProgress.expectedTotalBytes != null
+                ? loadingProgress.cumulativeBytesLoaded /
+                    (loadingProgress.expectedTotalBytes ?? 1)
+                : null,
           ),
         );
       }
@@ -45,13 +60,14 @@ class MyNetworkImage extends StatelessWidget {
         width: width,
         height: height,
         color: Colors.grey[300],
-        child: const Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.image_not_supported),
+            const Icon(Icons.image_not_supported),
             Text(
               'Failed to load image',
               textAlign: TextAlign.center,
+              style: kRegularTextStyle.copyWith(fontSize: 10),
             )
           ],
         ),

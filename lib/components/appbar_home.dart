@@ -16,7 +16,7 @@ class AppBarHome extends StatelessWidget {
     return SafeArea(
       bottom: false,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
         child: Row(
           children: [
             titleContent,

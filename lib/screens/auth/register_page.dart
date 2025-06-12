@@ -3,7 +3,7 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:my_dorm/components/gradient_button.dart';
 import 'package:my_dorm/components/login_textfield.dart';
 import 'package:my_dorm/constant/constant.dart';
-import 'package:my_dorm/screens/admin/home_admin.dart';
+import 'package:my_dorm/screens/admin/nav_sr.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
 import 'package:my_dorm/screens/auth/pilih_role.dart';
 import 'package:my_dorm/screens/dormitizen/home_dormitizen.dart';
@@ -43,7 +43,7 @@ class _RegisterPageState extends State<RegisterPage> {
       if (mounted) {
         if (response['user_type'] == 'senior_resident') {
           Navigator.push(
-              context, MaterialPageRoute(builder: (context) => HomeAdmin()));
+              context, MaterialPageRoute(builder: (context) => NavbarSR()));
         } else if (response['user_type'] == 'dormitizen') {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => HomeDormitizen()));

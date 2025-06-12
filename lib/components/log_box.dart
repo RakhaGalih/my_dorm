@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_dorm/components/shadow_container.dart';
@@ -7,12 +8,14 @@ class LogBox extends StatelessWidget {
   final String nama;
   final String type;
   final DateTime date;
+  final VoidCallback? onEdit;
 
   const LogBox({
     super.key,
     required this.nama,
     required this.type,
     required this.date,
+    this.onEdit,
   });
 
   @override
@@ -47,9 +50,9 @@ class LogBox extends StatelessWidget {
                             style: kMediumTextStyle.copyWith(
                                 fontSize: 12, color: Colors.black),
                             children: [
-                          const TextSpan(text: 'konfirmasi '),
+                          const TextSpan(text: 'Aktivitas '),
                           TextSpan(
-                              text: (type == 'In') ? 'masuk' : 'keluar',
+                              text: (type == 'masuk') ? 'Masuk' : 'Keluar',
                               style: kBoldTextStyle.copyWith(
                                   fontSize: 14, color: kRed)),
                           const TextSpan(text: ' asrama'),
@@ -70,28 +73,29 @@ class LogBox extends StatelessWidget {
                   ]),
             ),
             const SizedBox(width: 4),
-            GestureDetector(
-              onTap: () {},
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                    gradient: kGradientMain,
-                    borderRadius: BorderRadius.circular(4)),
-                child: const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Icon(Icons.edit, color: kWhite),
-                      Text(
-                        "Ubah",
-                        style: TextStyle(
-                            color: kWhite, fontWeight: FontWeight.w600),
-                      )
-                    ],
+            if (onEdit != null)
+              GestureDetector(
+                onTap: onEdit,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                      gradient: kGradientMain,
+                      borderRadius: BorderRadius.circular(4)),
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit, color: kWhite),
+                        Text(
+                          "Ubah",
+                          style: TextStyle(
+                              color: kWhite, fontWeight: FontWeight.w600),
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),

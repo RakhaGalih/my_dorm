@@ -1,7 +1,12 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:my_dorm/models/data_model.dart';
-import 'package:my_dorm/screens/admin/home_admin.dart';
+import 'package:my_dorm/screens/admin/nav_helpdesk.dart';
+import 'package:my_dorm/screens/admin/nav_sr.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
 import 'package:my_dorm/screens/dormitizen/home_dormitizen.dart';
 import 'package:my_dorm/service/camera_service.dart';
@@ -14,7 +19,9 @@ import 'service/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   tz.initializeTimeZones();
+  await initializeDateFormatting('id_ID');
   final cameraService = CameraService();
   await cameraService.initializeCameras();
   final NotificationService notificationService = NotificationService();
@@ -28,8 +35,13 @@ void main() async {
     0,
   );
   await notificationService.scheduleNotification(selectedTime);
-  // _notificationService.showInstantNotification();
   await FirebaseNotificationService.initialize();
+
+  FirebaseMessaging.instance.onTokenRefresh.listen((String fcmToken) async {
+    print('FCM Token refreshed: $fcmToken');
+    await postTokenFCM(fcmToken);
+  });
+
   runApp(const MainApp());
 }
 
@@ -42,6 +54,7 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   late String? role = "";
+  bool _showSpinner = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -50,7 +63,13 @@ class _MainAppState extends State<MainApp> {
   }
 
   void init() async {
+    setState(() {
+      _showSpinner = true;
+    });
     role = await getRole();
+    setState(() {
+      _showSpinner = false;
+    });
   }
 
   @override
@@ -63,11 +82,16 @@ class _MainAppState extends State<MainApp> {
       create: (_) => DataModel(),
       child: MaterialApp(
           theme: ThemeData(fontFamily: "Sans", primarySwatch: Colors.red),
-          home: (role == 'dormitizen')
-              ? HomeDormitizen()
-              : (role == 'senior_resident')
-                  ? HomeAdmin()
-                  : const LoginPage()),
+          home: ModalProgressHUD(
+            inAsyncCall: _showSpinner,
+            child: (role == 'dormitizen')
+                ? HomeDormitizen()
+                : (role == 'senior_resident')
+                    ? NavbarSR()
+                    : (role == 'helpdesk')
+                        ? NavBarHelpdesk()
+                        : const LoginPage(),
+          )),
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -31,6 +31,7 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
   String? selectedKategori;
 
   String error = "";
+  String infoSnackbar = "";
   bool _showSpinner = false;
 
   Future<void> _addPelanggaran() async {
@@ -40,21 +41,29 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
     });
     dynamic response = {};
     try {
+      dev.log('gambar: ${gambar?.path}');
       Map<String, String> data = {
         'kategori': selectedKategori!,
         'waktu': waktu,
         'dormitizen_id': selectedDormitizen!,
       };
-      response = await postDataTokenWithImage("/pelanggaran", data, gambar);
-      print('berhasil tambah laporan!');
+      dev.log('Data to be sent: $data');
+      response = await postDataTokenWithFile("/pelanggaran", data, gambar);
+      dev.log('Response from add pelanggaran: $response');
       if (mounted) {
-        Navigator.pop(context, 'sesuatu');
+        setState(() {
+          infoSnackbar = 'Pelanggaran berhasil ditambahkan!';
+        });
+      } else {
+        setState(() {
+          infoSnackbar = 'Gagal menambahkan pelanggaran';
+        });
       }
-
       print(response['message']);
     } catch (e) {
       setState(() {
         _showSpinner = false;
+        infoSnackbar = 'Pelanggaran gagal ditambahkan!';
         error = "${response['message']}";
       });
       print('Login error: $e');
@@ -73,10 +82,10 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
     try {
       dormitizenDataList.clear();
       String? token = await getToken();
-      var response = await getDataToken('/user/$nomorKamar', token!);
+      var response = await getDataToken('/dormitizen/$nomorKamar', token!);
 
-      if (response['response'] != null) {
-        List<Map<String, dynamic>> dormitizens = (response['response'] as List)
+      if (response['data'] != null) {
+        List<Map<String, dynamic>> dormitizens = (response['data'] as List)
             .map((item) => item as Map<String, dynamic>)
             .toList();
         for (var dormitizen in dormitizens) {
@@ -87,6 +96,7 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
         }
         print('Data Dormitizen: $dormitizens');
       } else {
+        print('error: ${response['message']}');
         setState(() {
           error = "Data dormitizen tidak ditemukan.";
         });
@@ -126,20 +136,11 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
                           ],
-                          decoration: InputDecoration(
-                            labelText: 'Nomor Kamar',
-                            hintText: 'Masukkan nomor kamar',
-                            border: OutlineInputBorder(
-                              borderSide: const BorderSide(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  const BorderSide(color: kMain, width: 2),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                          decoration:
+                              basicInputDecoration("Nomor kamar").copyWith(
                             suffixIcon: IconButton(
                               onPressed: () async {
+                                print('Searching for dormitizen...');
                                 await searchDormitizen(_kamarController.text);
                               },
                               icon: const Icon(Icons.search),
@@ -150,6 +151,12 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
                               return 'Nomor kamar tidak boleh kosong';
                             }
                             return null;
+                          },
+                          onChanged: (value) async {
+                            // Reset selectedDormitizen when the room number changes
+                            if (_kamarController.text.length == 3) {
+                              await searchDormitizen(_kamarController.text);
+                            }
                           },
                         ),
                         const SizedBox(height: 12),
@@ -186,7 +193,7 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
                             'Vape',
                             'Alkohol',
                             'Barang Terlarang',
-                            'Membawa Lawab Jenis ke dalam Kamar',
+                            'Membawa Lawan Jenis ke dalam Kamar',
                             'Membawa Teman dari luar Gedung Asrama',
                           ],
                           onItemSelected: (selectedItem) {
@@ -216,11 +223,26 @@ class _AddPelanggaranPageState extends State<AddPelanggaranPage> {
                           },
                         ),
                         GradientButton(
-                          ontap: () {
+                          ontap: () async {
                             if (_formKey.currentState?.validate() ?? false) {
                               if (selectedDormitizen!.isNotEmpty &&
-                                  waktu != "" && gambar != null) {
-                                _addPelanggaran();
+                                  waktu != "" &&
+                                  gambar != null) {
+                                try {
+                                  await _addPelanggaran();
+
+                                  // Create the SnackBar
+                                  var snackBar = SnackBar(
+                                    content: Text(infoSnackbar),
+                                  );
+
+                                  // Show the SnackBar
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(snackBar);
+                                  Navigator.pop(context, 'success');
+                                } catch (e) {
+                                  print(e);
+                                }
                               } else {
                                 print(waktu);
                                 print(selectedDormitizen);

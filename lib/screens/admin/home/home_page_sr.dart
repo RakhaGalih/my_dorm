@@ -1,4 +1,4 @@
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_dorm/components/appbar_home.dart';
@@ -7,30 +7,42 @@ import 'package:my_dorm/components/request_box.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/models/request_model.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_informasi_page.dart';
-import 'package:my_dorm/screens/admin/apps/list/list_keterlambatan_page.dart';
+import 'package:my_dorm/screens/admin/apps/list/list_my_log.dart';
+import 'package:my_dorm/screens/admin/apps/list/list_my_paket.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_paket_page.dart';
-import 'package:my_dorm/screens/admin/apps/list/list_pelanggaran_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_riwayat_request_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_statistik_page.dart';
+import 'package:my_dorm/screens/auth/login_page.dart';
+import 'package:my_dorm/service/converter.dart';
 import 'package:my_dorm/service/http_service.dart';
 
-class HomePageAdmin extends StatefulWidget {
-  const HomePageAdmin({super.key});
+class HomePageSR extends StatefulWidget {
+  const HomePageSR({
+    super.key,
+  });
 
   @override
-  State<HomePageAdmin> createState() => _HomePageAdminState();
+  State<HomePageSR> createState() => _HomePageSRState();
 }
 
-class _HomePageAdminState extends State<HomePageAdmin> {
+class _HomePageSRState extends State<HomePageSR> {
   String nama = 'loading...';
+  String kamarTerbuka = '0';
+  String kamarTertutup = '0';
   String error = "";
+  String statusKamar = '';
+  String waktuSekarang = '';
   bool _showSpinner = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    waktuSekarang = getFormattedTime();
     _getInfo();
+    _getInfoKamar();
+    _getStatusKamar();
+    _getLogKeluarMasuk();
   }
 
   void _getInfo() async {
@@ -41,16 +53,26 @@ class _HomePageAdminState extends State<HomePageAdmin> {
     Map<String, dynamic> response = {};
     try {
       String? token = await getToken();
-      response = await getDataToken("/user", token!);
+      response = await getDataToken("/user/me", token!);
       print(response);
-      nama = response['data'][0]['nama'];
+      nama = response['data']['nama'];
     } catch (e) {
+      if (e.toString() == 'Exception: Unauthorized or Forbidden') {
+        print('Session expired');
+        await removeToken();
+        setState(() {
+          _showSpinner = false;
+          error = "Session expired, silahkan login kembali";
+        });
+        if (mounted) {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const LoginPage()));
+        }
+      }
       setState(() {
         _showSpinner = false;
-        error = "Email atau Password salah";
       });
       error = "${response['message']}";
-      print('Login error: $e');
       print(response);
     }
     setState(() {
@@ -58,17 +80,99 @@ class _HomePageAdminState extends State<HomePageAdmin> {
     });
   }
 
-  List<RequestModel> requests = [
-    RequestModel(
-        name: "Rakha Galih Nugraha S", type: "In", date: DateTime.now()),
-    RequestModel(name: "Iksan Oktav Risandy", type: "In", date: DateTime.now()),
-    RequestModel(name: "Abdillah Aufa", type: "Out", date: DateTime.now())
-  ];
+  void _getInfoKamar() async {
+    error = "";
+    setState(() {
+      _showSpinner = true;
+    });
+    Map<String, dynamic> response = {};
+    try {
+      String? token = await getToken();
+      response = await getDataToken("/kamar/status/all", token!);
+      print(response);
+      kamarTerbuka = response['countTerbuka'].toString();
+      kamarTertutup = response['countTertutup'].toString();
+    } catch (e) {
+      if (e.toString() == 'Exception: Unauthorized or Forbidden') {
+        print('Session expired');
+        await removeToken();
+        setState(() {
+          _showSpinner = false;
+          error = "Session expired, silahkan login kembali";
+        });
+        if (mounted) {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const LoginPage()));
+        }
+      }
+      setState(() {
+        _showSpinner = false;
+        error = "Email atau Password salah";
+      });
+      error = "${response['message']}";
+      print('error: $e');
+      print(response);
+    }
+    setState(() {
+      _showSpinner = false;
+    });
+  }
+
+  void _getStatusKamar() async {
+    error = "";
+    setState(() {
+      _showSpinner = true;
+    });
+    try {
+      String? token = await getToken();
+      var response = await getDataToken('/kamar/status', token!);
+      print(response);
+
+      setState(() {
+        statusKamar = response['data']['status'];
+      });
+    } catch (e) {
+      print(e);
+      setState(() {
+        error = "Error: $e";
+      });
+    } finally {
+      setState(() {
+        _showSpinner = false;
+      });
+    }
+  }
+
+  void _getLogKeluarMasuk() async {
+    setState(() {
+      error = "";
+      _showSpinner = true;
+    });
+
+    try {
+      List<RequestModel> result = await fetchLogKeluarMasuk();
+      print(result
+          .map((r) =>
+              'ID: ${r.id},Name: ${r.name}, Type: ${r.type}, Date: ${r.date}, Status: ${r.status}')
+          .toList());
+
+      print("tesssss");
+      setState(() {
+        requests = result;
+      });
+    } catch (e) {
+      print("Gagal mengambil log keluar masuk: $e");
+    }
+  }
+
+  List<RequestModel> requests = [];
   @override
   Widget build(BuildContext context) {
-    void popList(List L, int index) {
+    final pendingRequests =
+        requests.where((r) => r.status == 'pending').toList();
+    void popList(RequestModel item) {
       setState(() {
-        L.removeAt(index);
+        requests.removeWhere((r) => r.id == item.id);
       });
     }
 
@@ -111,7 +215,7 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                                         CrossAxisAlignment.start,
                                     children: [
                                   Text(
-                                    'Selamat pagi,',
+                                    'Selamat $waktuSekarang,',
                                     style: kSemiBoldTextStyle.copyWith(
                                         color: kWhite, fontSize: 15),
                                   ),
@@ -133,12 +237,12 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        'Kunci kamar di Asrama',
+                                        'Kunci di Kamar',
                                         style: kSemiBoldTextStyle.copyWith(
                                             fontSize: 14, color: kWhite),
                                       ),
                                       Text(
-                                        '110',
+                                        kamarTerbuka,
                                         style: kBoldTextStyle.copyWith(
                                             fontSize: 45, color: kWhite),
                                       ),
@@ -150,12 +254,12 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        'Kunci kamar di Luar',
+                                        'Kunci di helpdesk',
                                         style: kSemiBoldTextStyle.copyWith(
                                             fontSize: 14, color: kWhite),
                                       ),
                                       Text(
-                                        '50',
+                                        kamarTertutup,
                                         style: kBoldTextStyle.copyWith(
                                             fontSize: 45, color: kWhite),
                                       ),
@@ -176,6 +280,46 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                   children: [
                     const SizedBox(
                       height: 20,
+                    ),
+                    Container(
+                        padding: const EdgeInsets.all(18),
+                        margin: const EdgeInsets.symmetric(horizontal: 30),
+                        decoration: BoxDecoration(
+                          color: kRed,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.info_outline,
+                              size: 18,
+                              color: kWhite,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Wrap(
+                                children: [
+                                  Text(
+                                    'Kunci Anda Sekarang berada di ',
+                                    style: kRegularTextStyle.copyWith(
+                                        color: kWhite, fontSize: 12),
+                                  ),
+                                  Text(
+                                    (statusKamar == '')
+                                        ? 'Loading...'
+                                        : (statusKamar == 'terkunci')
+                                            ? 'Helpdesk'
+                                            : 'Kamar Anda',
+                                    style: kBoldTextStyle.copyWith(
+                                        color: kWhite, fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        )),
+                    const SizedBox(
+                      height: 12,
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
@@ -205,7 +349,7 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                         ],
                       ),
                     ),
-                    (requests.isEmpty)
+                    (pendingRequests.isEmpty)
                         ? Padding(
                             padding: const EdgeInsets.all(44),
                             child: Column(
@@ -230,15 +374,21 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             child: Column(
                                 children: List.generate(
-                                    requests.length,
+                                    pendingRequests.length,
                                     (index) => RequestBox(
-                                          nama: requests[index].name,
-                                          type: requests[index].type,
-                                          onAccept: () {
-                                            popList(requests, index);
+                                          nama: pendingRequests[index].name,
+                                          type: pendingRequests[index].type,
+                                          onAccept: () async {
+                                            await updateStatusLog(
+                                                pendingRequests[index].id,
+                                                'diterima');
+                                            popList(pendingRequests[index]);
                                           },
-                                          onReject: () {
-                                            popList(requests, index);
+                                          onReject: () async {
+                                            await updateStatusLog(
+                                                pendingRequests[index].id,
+                                                'ditolak');
+                                            popList(pendingRequests[index]);
                                           },
                                         ))),
                           ),
@@ -254,40 +404,47 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                     ),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 30),
-                      child: Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.start,
+                      child: Column(
                         children: [
-                          AppsIcon(
-                            icon: FontAwesomeIcons.history,
-                            title: 'Riwayat\nRequest',
-                            pushWidget: ListRiwayatRequestPage(),
+                          Row(
+                            children: [
+                              AppsIcon(
+                                icon: FontAwesomeIcons.history,
+                                title: 'Riwayat Request',
+                                pushWidget: ListRiwayatRequestPage(),
+                              ),
+                              AppsIcon(
+                                icon: FontAwesomeIcons.box,
+                                title: 'Paket',
+                                pushWidget: ListPaketPage(),
+                              ),
+                              AppsIcon(
+                                icon: FontAwesomeIcons.bullhorn,
+                                title: 'Informasi',
+                                pushWidget: ListInformasiPage(),
+                              ),
+                            ],
                           ),
-                          AppsIcon(
-                            icon: FontAwesomeIcons.box,
-                            title: 'Paket',
-                            pushWidget: ListPaketPage(),
+                          Row(
+                            children: [
+                              AppsIcon(
+                                icon: FontAwesomeIcons.chartSimple,
+                                title: 'Statistik',
+                                // pushWidget: UnavailableFeaturesPage(),
+                                pushWidget: ListStatistikPage(),
+                              ),
+                              AppsIcon(
+                                icon: FontAwesomeIcons.bookmark,
+                                title: 'My Log',
+                                pushWidget: ListMyLog(),
+                              ),
+                              AppsIcon(
+                                icon: FontAwesomeIcons.boxArchive,
+                                title: 'My Paket',
+                                pushWidget: ListMyPaketPage(),
+                              ),
+                            ],
                           ),
-                          AppsIcon(
-                            icon: FontAwesomeIcons.bullhorn,
-                            title: 'Informasi',
-                            pushWidget: ListInformasiPage(),
-                          ),
-                          AppsIcon(
-                            icon: FontAwesomeIcons.chartSimple,
-                            title: 'Statistik',
-                            // pushWidget: UnavailableFeaturesPage(),
-                            pushWidget: ListStatistikPage(),
-                          ),
-                          AppsIcon(
-                            icon: FluentIcons.chat_warning_24_filled,
-                            title: 'Keterlambatan',
-                            pushWidget: ListKeterlambatanPage(),
-                          ),
-                          AppsIcon(
-                            icon: FluentIcons.warning_12_filled,
-                            title: 'Pelanggaran',
-                            pushWidget: ListPelanggaranPage(),
-                          )
                         ],
                       ),
                     ),

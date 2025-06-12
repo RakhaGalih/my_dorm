@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_dorm/components/gradient_button.dart';
+import 'package:my_dorm/components/outline_button.dart';
 
 const kGradientMain =
     LinearGradient(begin: Alignment(-1, -0.2), end: Alignment(1, 0.2), colors: [
@@ -97,3 +99,44 @@ const seniorResidentsToken =
 const dormitizenToken =
     "eDlmG2sJRiWC-jPYlFoGSo:APA91bEyxjp9kOcamiDqOQkfRRlHNvkGfKTGw40uJHW6CCVVb9fCNB49fYVfATxOjVs9RW41O4G1Sme3kAzbmdToV7Lit-K5oOWfGWbsoSrmRCQ2SusqLsc";
 const mydorm_news_topic = "MyDorm-Informasi";
+
+void confirmDialog(BuildContext context, String title, String subtitle,
+    VoidCallback? onConfirm) {
+  showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: kWhite,
+          title: Text(
+            title,
+            style: kSemiBoldTextStyle.copyWith(fontSize: 21),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(subtitle),
+              const SizedBox(height: 15),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                      width: 120,
+                      child: GradientButton(
+                          ontap: onConfirm ?? () {}, title: "Iya")),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  SizedBox(
+                      width: 120,
+                      child: OutlineButton(
+                          ontap: () {
+                            Navigator.of(context).pop();
+                          },
+                          title: "Batal"))
+                ],
+              )
+            ],
+          ),
+        );
+      });
+}

@@ -31,7 +31,7 @@ class AppBarPage extends StatelessWidget {
                     child: (canBack)
                         ? IconButton(
                             onPressed: () {
-                              Navigator.pop(context);
+                              Navigator.pop(context, "oke");
                             },
                             icon: const Icon(
                               FluentIcons.arrow_left_24_filled,

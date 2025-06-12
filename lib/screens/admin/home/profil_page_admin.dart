@@ -7,6 +7,7 @@ import 'package:my_dorm/components/shadow_container.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
 import 'package:my_dorm/service/http_service.dart';
+import 'package:my_dorm/service/myfirebasenotification_service.dart';
 
 class ProfilPageAdmin extends StatefulWidget {
   const ProfilPageAdmin({super.key});
@@ -27,6 +28,7 @@ class _ProfilPageDromitizenState extends State<ProfilPageAdmin> {
   String gedung = 'loading...';
   String noKamar = 'loading...';
   String error = "";
+  String? role;
   bool _showSpinner = false;
 
   @override
@@ -44,19 +46,26 @@ class _ProfilPageDromitizenState extends State<ProfilPageAdmin> {
     Map<String, dynamic> response = {};
     try {
       String? token = await getToken();
-      response = await getDataToken("/user", token!);
+      response = await getDataToken("/user/me", token!);
       print(response);
-      NIM = response['data'][0]['nim'];
-      status = response['user_type'];
-      nama = response['data'][0]['nama'];
-      username = response['data'][0]['username'];
-      prodi = response['data'][0]['prodi'];
-      agama = response['data'][0]['agama'];
-      noHP = response['data'][0]['no_hp'];
-      noHPOrtu = response['data'][0]['no_hp_ortu'];
-      gedung =
-          "${response['data'][0]['kamar']['gedung']['nama']} (${response['data'][0]['kamar']['gedung']['kode']})";
-      noKamar = response['data'][0]['kamar']['nomor'];
+      role = await getRole();
+      if (role == 'helpdesk') {
+        NIM = response['data']['nip'];
+        gedung =
+            "${response['data']['gedung']['nama']} (${response['data']['gedung']['kode']})";
+      } else {
+        NIM = response['data']['nim'];
+
+        prodi = response['data']['prodi'];
+        agama = response['data']['agama'];
+        noHP = response['data']['no_hp'];
+        noHPOrtu = response['data']['no_hp_ortu'];
+        noKamar = response['data']['kamar']['nomor'];
+        gedung =
+            "${response['data']['kamar']['gedung']['nama']} (${response['data']['kamar']['gedung']['kode']})";
+      }
+      nama = response['data']['nama'];
+      status = role!;
     } catch (e) {
       setState(() {
         _showSpinner = false;
@@ -82,12 +91,19 @@ class _ProfilPageDromitizenState extends State<ProfilPageAdmin> {
     });
     Map<String, dynamic> response = {};
     try {
+      String? tokenFirebaseNotification =
+          await FirebaseNotificationService.getToken();
+      await deleteTokenFCM(tokenFirebaseNotification);
+      print('Firebase token: $tokenFirebaseNotification berhasil dihapus');
       String? token = await getToken();
       response = await logout(token!);
       await removeToken();
+
       if (mounted) {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const LoginPage()));
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+          (Route<dynamic> route) => false,
+        );
       }
       print('berhasil logout!');
       String? accessToken = await getToken();
@@ -176,19 +192,26 @@ class _ProfilPageDromitizenState extends State<ProfilPageAdmin> {
                     children: [
                       ProfileDesc(title: 'NIM', value: NIM),
                       ProfileDesc(title: 'Status', value: status),
-                      ProfileDesc(title: 'Username', value: username),
-                      ProfileDesc(title: 'Prodi', value: prodi),
-                      ProfileDesc(title: 'Agama', value: agama),
-                      ProfileDesc(title: 'No HP', value: noHP),
-                      ProfileDesc(title: 'No HP Ortu', value: noHPOrtu),
+                      if (!(role == 'helpdesk'))
+                        ProfileDesc(title: 'Prodi', value: prodi),
+                      if (!(role == 'helpdesk'))
+                        ProfileDesc(title: 'Agama', value: agama),
+                      if (!(role == 'helpdesk'))
+                        ProfileDesc(title: 'No HP', value: noHP),
+                      if (!(role == 'helpdesk'))
+                        ProfileDesc(title: 'No HP Ortu', value: noHPOrtu),
                       ProfileDesc(title: 'Gedung', value: gedung),
-                      ProfileDesc(title: 'No kamar', value: noKamar),
+                      if (!(role == 'helpdesk'))
+                        ProfileDesc(title: 'No kamar', value: noKamar),
                     ],
                   ),
                 ),
                 ShadowContainer(
                   onTap: () {
-                    _logout();
+                    confirmDialog(context, "Konfirmasi Logout",
+                        "Apakah anda yakin ingin logout?", () {
+                      _logout();
+                    });
                   },
                   child: Row(
                     children: [

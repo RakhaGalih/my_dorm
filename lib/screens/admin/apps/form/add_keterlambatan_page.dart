@@ -42,22 +42,20 @@ class _AddKeterlambatanPageState extends State<AddKeterlambatanPage> {
                     GradientButton(
                         ontap: () {
                           if (_formKey.currentState?.validate() ?? false) {
-                            // Create the SnackBar
-                            final snackBar = SnackBar(
-                              content: const Text('Data berhasil ditambahkan!'),
-                              action: SnackBarAction(
-                                label: 'Batal',
-                                textColor: kMain,
-                                onPressed: () {
-                                  // Some action if needed
-                                },
-                              ),
-                            );
+                            try {
 
-                            // Show the SnackBar
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(snackBar);
-                            Navigator.pop(context);
+                                // Create the SnackBar
+                                const snackBar = SnackBar(
+                                  content: Text('Data berhasil ditambahkan!'),
+                                );
+
+                                // Show the SnackBar
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(snackBar);
+                                Navigator.pop(context, 'sesuatu');
+                              } catch (e) {
+                                print(e);
+                              }
                           }
                         },
                         title: 'Kirim')

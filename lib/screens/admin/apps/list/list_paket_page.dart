@@ -5,12 +5,11 @@ import 'package:my_dorm/components/appbar_page.dart';
 import 'package:my_dorm/components/gradient_button.dart';
 import 'package:my_dorm/components/outline_button.dart';
 import 'package:my_dorm/components/paket_card.dart';
-import 'package:my_dorm/components/shadow_container.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/screens/admin/apps/form/add_paket_page.dart';
 import 'package:my_dorm/screens/common/detail_image.dart';
 import 'package:my_dorm/service/http_service.dart';
-import 'dart:developer' as dev;
+import 'package:my_dorm/service/image_service.dart';
 
 class ListPaketPage extends StatefulWidget {
   const ListPaketPage({super.key});
@@ -24,9 +23,10 @@ class _ListPaketPageState extends State<ListPaketPage> {
   List<Map<String, dynamic>> pakets_belum = [];
   List<Map<String, dynamic>> pakets_sudah = [];
   String error = "";
+  String? role;
   // ignore: unused_field
   bool _showSpinner = false;
-
+  final TextEditingController _searchController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -38,29 +38,38 @@ class _ListPaketPageState extends State<ListPaketPage> {
     return DateFormat('dd MMM yyyy, HH:mm').format(dateTime);
   }
 
-  Future<void> getPaket() async {
+  Future<void> getPaket({String? search}) async {
     error = "";
     setState(() {
       _showSpinner = true;
     });
+
     try {
+      pakets_belum.clear();
+      pakets_sudah.clear();
+      role = await getRole();
       String? token = await getToken();
-      var response = await getDataToken('/paket/all', token!);
+      String queryString = '';
+      if (search != null && search.isNotEmpty) {
+        queryString = '?search=${Uri.encodeQueryComponent(search)}';
+      }
+      var response = await getDataToken('/paket/all$queryString', token!);
       if (response['data'] != null) {
         setState(() {
           pakets = (response['data'] as List)
               .map((item) => item as Map<String, dynamic>)
               .toList();
-        });
-        print('Data Paket: $pakets');
-
-        for (int i = 0; i < pakets.length; i++) {
-          if (pakets[i]["status_pengambilan"] == "belum") {
-            pakets_belum.add(pakets[i]);
-          } else {
-            pakets_sudah.add(pakets[i]);
+          print('Data Paket: $pakets');
+          pakets_belum = [];
+          pakets_sudah = [];
+          for (int i = 0; i < pakets.length; i++) {
+            if (pakets[i]["status_pengambilan"] == "belum") {
+              pakets_belum.add(pakets[i]);
+            } else {
+              pakets_sudah.add(pakets[i]);
+            }
           }
-        }
+        });
       } else {
         setState(() {
           error = "Data paket dormitizen kosong.";
@@ -69,53 +78,54 @@ class _ListPaketPageState extends State<ListPaketPage> {
     } catch (e) {
       print(e);
       setState(() {
-        _showSpinner = false;
         error = "Error: $e";
+      });
+    }
+    setState(() {
+      _showSpinner = false;
+    });
+  }
+
+  Future<void> deletePaket(String id) async {
+    error = "";
+    setState(() {
+      _showSpinner = true;
+    });
+    try {
+      await deleteDataToken('/paket/$id');
+
+      print('Paket dengan ID $id berhasil dihapus');
+    } catch (e) {
+      print(e);
+      setState(() {
+        error = "Error: $e";
+      });
+    } finally {
+      setState(() {
+        _showSpinner = false;
       });
     }
   }
 
-  void confirmDeletePaket(Map<String, dynamic> paket) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            backgroundColor: kWhite,
-            title: Text(
-              "Konfirmasi Penghapusan",
-              style: kSemiBoldTextStyle.copyWith(fontSize: 21),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text("Apakah anda yakin ingin menghapus data paket ini?"),
-                SizedBox(height: 15),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                        width: 120,
-                        child: GradientButton(
-                            ontap: () {
-                              Navigator.of(context).pop();
-                            },
-                            title: "Iya")),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Container(
-                        width: 120,
-                        child: OutlineButton(
-                            ontap: () {
-                              Navigator.of(context).pop();
-                            },
-                            title: "Batal"))
-                  ],
-                )
-              ],
-            ),
-          );
-        });
+  Future<void> updatePaket(String id) async {
+    error = "";
+    setState(() {
+      _showSpinner = true;
+    });
+    try {
+      await updateDataTokenTanpaBody('/paket/$id');
+
+      print('Paket dengan ID $id berhasil diupdate');
+    } catch (e) {
+      print(e);
+      setState(() {
+        error = "Error: $e";
+      });
+    } finally {
+      setState(() {
+        _showSpinner = false;
+      });
+    }
   }
 
   void showPaketDetail(Map<String, dynamic> paket) {
@@ -132,17 +142,18 @@ class _ListPaketPageState extends State<ListPaketPage> {
                 children: [
                   ClipRRect(
                     borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(15)),
+                        const BorderRadius.vertical(top: Radius.circular(15)),
                     child: GestureDetector(
                       onTap: () {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const DetailImagePage(
-                                    imagepath: 'images/paket.png')));
+                                builder: (context) => DetailImagePage(
+                                    imagepath:
+                                        '$apiURL/images/paket/${paket['gambar']}')));
                       },
-                      child: Image.asset(
-                        'images/paket.png',
+                      child: MyNetworkImage(
+                        imageURL: '$apiURL/images/paket/${paket['gambar']}',
                         width: double.maxFinite,
                         height: 150,
                         fit: BoxFit.cover,
@@ -156,7 +167,7 @@ class _ListPaketPageState extends State<ListPaketPage> {
                       onTap: () {
                         Navigator.of(context).pop();
                       },
-                      child: CircleAvatar(
+                      child: const CircleAvatar(
                         backgroundColor: Colors.white,
                         child: Icon(Icons.close, color: Colors.black),
                       ),
@@ -171,11 +182,11 @@ class _ListPaketPageState extends State<ListPaketPage> {
                   ),
                 ],
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(
-                  "${paket['dormitizen']['nama']} (${paket['dormitizen']['kamar']['nomor']})",
+                  "${paket['pemilik_paket']['nama']} (${paket['pemilik_paket']['kamar']['nomor']})",
                   style: kBoldTextStyle),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Row(
@@ -187,20 +198,21 @@ class _ListPaketPageState extends State<ListPaketPage> {
                     color: kRed,
                   ),
                   const SizedBox(width: 5),
-                  paket['status_pengambilan'] == "belum"
-                      ? Text(
-                          "Helpdesk",
-                          style: kSemiBoldTextStyle.copyWith(
-                              fontSize: 12, color: kRed),
-                        )
-                      : Text(
-                          "Kamar ${paket['dormitizen']['kamar']['nomor']}",
-                          style: kSemiBoldTextStyle.copyWith(
-                              fontSize: 12, color: kRed),
-                        )
+                  Expanded(
+                      child: paket['status_pengambilan'] == "belum"
+                          ? Text(
+                              "Helpdesk",
+                              style: kSemiBoldTextStyle.copyWith(
+                                  fontSize: 12, color: kRed),
+                            )
+                          : Text(
+                              "Kamar ${paket['pemilik_paket']['kamar']['nomor']}",
+                              style: kSemiBoldTextStyle.copyWith(
+                                  fontSize: 12, color: kRed),
+                            ))
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Row(
@@ -211,10 +223,13 @@ class _ListPaketPageState extends State<ListPaketPage> {
                     size: 18,
                   ),
                   const SizedBox(width: 5),
-                  Text(
-                    "${paket['penerima paket']['nama']} (Pj Penerimaan)",
-                    style: kSemiBoldTextStyle.copyWith(fontSize: 12),
-                  )
+                  if (paket['penerima_paket']['nama'] != null)
+                    Expanded(
+                      child: Text(
+                        "${paket['penerima_paket']['nama']} (Pj Penerimaan)",
+                        style: kSemiBoldTextStyle.copyWith(fontSize: 12),
+                      ),
+                    )
                 ],
               ),
               if (paket['status_pengambilan'] == "sudah")
@@ -226,13 +241,16 @@ class _ListPaketPageState extends State<ListPaketPage> {
                       size: 18,
                     ),
                     const SizedBox(width: 5),
-                    Text(
-                      "${paket['penyerahan paket']['nama']} (Pj Penerimaan)",
-                      style: kSemiBoldTextStyle.copyWith(fontSize: 12),
-                    )
+                    if (paket['penyerah_paket']['nama'] != null)
+                      Expanded(
+                        child: Text(
+                          "${paket['penyerah_paket']['nama']} (Pj Penerimaan)",
+                          style: kSemiBoldTextStyle.copyWith(fontSize: 12),
+                        ),
+                      )
                   ],
                 ),
-              SizedBox(
+              const SizedBox(
                 height: 5,
               ),
               Row(
@@ -247,7 +265,7 @@ class _ListPaketPageState extends State<ListPaketPage> {
                 ],
               ),
               if (paket['status_pengambilan'] == "sudah")
-                SizedBox(
+                const SizedBox(
                   height: 5,
                 ),
               if (paket['status_pengambilan'] == "sudah")
@@ -267,16 +285,29 @@ class _ListPaketPageState extends State<ListPaketPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: Column(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       height: 15,
                     ),
-                    GradientButton(ontap: () {}, title: "Edit"),
-                    SizedBox(
+                    GradientButton(
+                        ontap: () async {
+                          await updatePaket(paket['paket_id']);
+                          Navigator.of(context).pop();
+                          await getPaket();
+                        },
+                        title: "Selesai"),
+                    const SizedBox(
                       height: 10,
                     ),
                     OutlineButton(
                         ontap: () {
-                          confirmDeletePaket(paket);
+                          confirmDialog(context, "Konfirmasi Penghapusan",
+                              "Apakah anda yakin ingin menghapus data paket ini",
+                              () async {
+                            await deletePaket(paket['paket_id']);
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pop();
+                            await getPaket();
+                          });
                         },
                         title: "Hapus Paket"),
                   ],
@@ -289,166 +320,210 @@ class _ListPaketPageState extends State<ListPaketPage> {
     );
   }
 
+  Future<void> _navigateAndDisplayResult(BuildContext context) async {
+    final result = await Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const AddPaketPage()));
+
+    // Check what was returned and act accordingly
+    if (result != null) {
+      await getPaket(search: _searchController.text);
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: kWhite,
-        body: Column(children: [
-          AppBarPage(
-            title: 'Paket',
-            onAdd: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const AddPaketPage()));
-            },
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 50,
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: kGrey),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.search),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        Text('Cari')
-                      ],
+        body: SingleChildScrollView(
+          child: Column(children: [
+            AppBarPage(
+              title: 'Paket',
+              onAdd: (role == 'helpdesk')
+                  ? () {
+                      _navigateAndDisplayResult(context);
+                    }
+                  : null,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 50,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: kGrey),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.search),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Expanded(
+                              child: TextField(
+                            controller: _searchController,
+                            decoration: InputDecoration(
+                                hintText: 'nama penerima',
+                                border: InputBorder.none,
+                                isDense: true),
+                            onChanged: (value) {
+                              getPaket(search: value);
+                            },
+                          ))
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: kGrey),
-                    ),
-                    child: Icon(Icons.filter_alt)),
-              ],
+                  /*const SizedBox(
+                    width: 10,
+                  ),
+                  Container(
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: kGrey),
+                      ),
+                      child: const Icon(Icons.filter_alt)),*/
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text(
-                  'Paket belum diambil :',
-                  style: kBoldTextStyle.copyWith(fontSize: 14),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Column(
-                  children: List.generate(
-                      pakets_belum.length,
-                      (index) => Stack(children: [
-                            InkWell(
-                              onTap: () {
-                                showPaketDetail(pakets_belum[index]);
-                              },
-                              child: PaketCard(
-                                nomorKamar: pakets_belum[index]['dormitizen']
-                                    ['kamar']['nomor'],
-                                paketSampai:
-                                    '${formatTanggal(pakets_belum[index]['waktu_tiba'])} (Paket Sampai)',
-                                paketDiambil: pakets_belum[index]
-                                            ['status_pengambilan'] ==
-                                        'sudah'
-                                    ? '${formatTanggal(pakets_belum[index]['waktu_diambil'])} (Paket Diambil)'
-                                    : '-',
-                                namaDormitizen: pakets_belum[index]
-                                    ['dormitizen']['nama'],
-                                status: pakets_belum[index]
-                                    ['status_pengambilan'],
-                                pjPaket:
-                                    '${pakets_belum[index]['penerima paket']['nama']} (Pj Paket)',
-                              ),
-                            ),
-                            Positioned(
-                              top: 15,
-                              right: 10,
-                              child: GestureDetector(
-                                onTap: () {},
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                      gradient: kGradientMain,
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(15.0),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          FontAwesomeIcons.check,
-                                          size: 16,
-                                          color: kWhite,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    'Paket belum diambil :',
+                    style: kBoldTextStyle.copyWith(fontSize: 14),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  (_showSpinner)
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: kRed,
+                          ),
+                        )
+                      : Column(
+                          children: List.generate(
+                              pakets_belum.length,
+                              (index) => Stack(children: [
+                                    InkWell(
+                                        onTap: () {
+                                          showPaketDetail(pakets_belum[index]);
+                                        },
+                                        child: GestureDetector(
+                                          onLongPress: () {
+                                            confirmDialog(
+                                                context,
+                                                "Konfirmasi Penghapusan",
+                                                "Apakah anda yakin ingin menghapus data paket ini?",
+                                                () async {
+                                              await deletePaket(
+                                                  pakets_belum[index]
+                                                      ['paket_id']);
+                                              Navigator.of(context).pop();
+                                              await getPaket();
+                                            });
+                                          },
+                                          child: PaketCard(
+                                            paket: pakets_belum[index],
+                                          ),
+                                        )),
+                                    Positioned(
+                                      top: 15,
+                                      right: 10,
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          await updatePaket(
+                                              pakets_belum[index]['paket_id']);
+                                          await getPaket();
+                                        },
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                              gradient: kGradientMain,
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(15.0),
+                                            child: Row(
+                                              children: [
+                                                const Icon(
+                                                  FontAwesomeIcons.check,
+                                                  size: 16,
+                                                  color: kWhite,
+                                                ),
+                                                const SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(
+                                                  "Selesai",
+                                                  style:
+                                                      kBoldTextStyle.copyWith(
+                                                          color: kWhite,
+                                                          fontSize: 16),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
-                                        SizedBox(
-                                          width: 5,
-                                        ),
-                                        Text(
-                                          "Selesai",
-                                          style: kBoldTextStyle.copyWith(
-                                              color: kWhite, fontSize: 16),
-                                        ),
-                                      ],
+                                      ),
+                                    )
+                                  ])),
+                        ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    'Paket sudah diambil :',
+                    style: kBoldTextStyle.copyWith(fontSize: 14),
+                  ),
+                  (_showSpinner)
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: kRed,
+                          ),
+                        )
+                      : Column(
+                          children: List.generate(
+                              pakets_sudah.length,
+                              (index) => InkWell(
+                                    onTap: () {
+                                      showPaketDetail(pakets_sudah[index]);
+                                    },
+                                    child: GestureDetector(
+                                      onLongPress: () {
+                                        confirmDialog(
+                                            context,
+                                            "Konfirmasi Penghapusan",
+                                            "Apakah anda yakin ingin menghapus data paket ini",
+                                            () async {
+                                          await deletePaket(
+                                              pakets_sudah[index]['paket_id']);
+                                          Navigator.of(context).pop();
+                                          await getPaket();
+                                        });
+                                      },
+                                      child: PaketCard(
+                                        paket: pakets_sudah[index],
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              ),
-                            )
-                          ])),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  'Paket sudah diambil :',
-                  style: kBoldTextStyle.copyWith(fontSize: 14),
-                ),
-                Column(
-                  children: List.generate(
-                      pakets_sudah.length,
-                      (index) => InkWell(
-                            onTap: () {
-                              showPaketDetail(pakets_sudah[index]);
-                            },
-                            child: PaketCard(
-                              nomorKamar: pakets_sudah[index]['dormitizen']
-                                  ['kamar']['nomor'],
-                              paketSampai:
-                                  '${formatTanggal(pakets_sudah[index]['waktu_tiba'])} (Paket Sampai)',
-                              paketDiambil: pakets_sudah[index]
-                                          ['status_pengambilan'] ==
-                                      'sudah'
-                                  ? '${formatTanggal(pakets_sudah[index]['waktu_diambil'])} (Paket Diambil)'
-                                  : '-',
-                              namaDormitizen: pakets_sudah[index]['dormitizen']
-                                  ['nama'],
-                              status: pakets_sudah[index]['status_pengambilan'],
-                              pjPaket:
-                                  '${pakets_sudah[index]['penerima paket']['nama']} (Pj Paket)',
-                            ),
-                          )),
-                ),
-              ],
+                                  )),
+                        ),
+                ],
+              ),
             ),
-          ),
-        ]));
+          ]),
+        ));
   }
 }

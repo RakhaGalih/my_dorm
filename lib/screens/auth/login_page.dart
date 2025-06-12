@@ -3,11 +3,14 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:my_dorm/components/gradient_button.dart';
 import 'package:my_dorm/components/login_textfield.dart';
 import 'package:my_dorm/constant/constant.dart';
-import 'package:my_dorm/screens/admin/home_admin.dart';
+import 'package:my_dorm/screens/admin/nav_helpdesk.dart';
+import 'package:my_dorm/screens/admin/nav_sr.dart';
 import 'package:my_dorm/screens/auth/pilih_role.dart';
 import 'package:my_dorm/screens/auth/register_page.dart';
 import 'package:my_dorm/screens/dormitizen/home_dormitizen.dart';
 import 'package:my_dorm/service/http_service.dart';
+import 'package:my_dorm/service/myfirebasenotification_service.dart';
+import 'dart:developer' as dev;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -37,19 +40,30 @@ class _LoginPageState extends State<LoginPage> {
       };
       response = await postData("/login", data);
       String token = response['accessToken']; // Ambil token dari response
-      await saveToken(token, response['user_type']);
+      await saveToken(token, response['role']);
+      print('response login: $response');
+
       if (mounted) {
-        if (response['user_type'] == 'senior_resident') {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => HomeAdmin()));
-        } else if (response['user_type'] == 'dormitizen') {
-          Navigator.push(context,
+        // sekalian post token firebase ke BE
+        String tokenFirebaseNotification =
+            await FirebaseNotificationService.getToken();
+        await postTokenFCM(tokenFirebaseNotification);
+        dev.log('Firebase token: $tokenFirebaseNotification berhasil dikirim');
+        if (response['role'] == 'senior_resident') {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => NavbarSR()));
+        } else if (response['role'] == 'helpdesk') {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => NavBarHelpdesk()));
+        } else if (response['role'] == 'dormitizen') {
+          Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => HomeDormitizen()));
         } else {
-          Navigator.push(context,
+          Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => const PIlihRole()));
         }
       }
+
       print('berhasil login!');
       String? accessToken = await getToken();
       print(accessToken);
@@ -59,6 +73,11 @@ class _LoginPageState extends State<LoginPage> {
         error = "Email atau Password salah";
       });
       error = "${response['message']}";
+      if (error == "null") {
+        setState(() {
+          error = "Network Error. Please change your ";
+        });
+      }
       print('Login error: $e');
       print(response);
     }

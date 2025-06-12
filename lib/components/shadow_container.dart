@@ -4,17 +4,20 @@ import 'package:my_dorm/constant/constant.dart';
 
 class ShadowContainer extends StatelessWidget {
   final Widget child;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   const ShadowContainer({
     super.key,
     required this.child,
-    required this.onTap,
+    this.onTap,
+    this.onLongPress,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 30),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

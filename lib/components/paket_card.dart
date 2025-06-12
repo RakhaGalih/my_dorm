@@ -1,23 +1,17 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_dorm/constant/constant.dart';
+import 'package:my_dorm/service/converter.dart';
+import 'package:my_dorm/service/http_service.dart';
+import 'package:my_dorm/service/image_service.dart';
 
 class PaketCard extends StatelessWidget {
-  final String namaDormitizen;
-  final String nomorKamar;
-  final String paketSampai;
-  final String paketDiambil;
-  final String status;
-  final String pjPaket;
+  final Map<String, dynamic> paket;
 
   const PaketCard({
     super.key,
-    required this.namaDormitizen,
-    required this.nomorKamar,
-    required this.paketSampai,
-    required this.paketDiambil,
-    required this.status,
-    required this.pjPaket,
+    required this.paket,
   });
 
   @override
@@ -39,78 +33,91 @@ class PaketCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Image.asset('images/paket.png', width: 80, height: 80),
+          MyNetworkImage(
+            imageURL: '$apiURL/images/paket/${paket['gambar']}',
+            width: 80,
+            height: 80,
+            fit: BoxFit.cover,
+          ),
           const SizedBox(height: 5),
           const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Kamar $nomorKamar",
-                style: kBoldTextStyle.copyWith(fontSize: 15),
-              ),
-              const SizedBox(height: 5),
-              if (status == "belum")
-                Row(
-                  children: [
-                    const Icon(
-                      FontAwesomeIcons.locationPin,
-                      size: 18,
-                      color: kRed,
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      "Helpdesk",
-                      style: kSemiBoldTextStyle.copyWith(
-                          fontSize: 12, color: kRed),
-                    )
-                  ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if(paket['pemilik_paket']['kamar'] != null)
+                Text(
+                  "Kamar ${paket['pemilik_paket']['kamar']['nomor'] ?? 'Tidak diketahui'}",
+                  style: kBoldTextStyle.copyWith(fontSize: 15),
                 ),
-              const SizedBox(height: 5),
-              Row(
-                children: [
-                  const Icon(
-                    FontAwesomeIcons.solidCircleUser,
-                    size: 18,
+                const SizedBox(height: 5),
+                if ((paket['status_pengambilan'] ?? 'belum') == "belum")
+                  Row(
+                    children: [
+                      const Icon(
+                        FontAwesomeIcons.locationPin,
+                        size: 18,
+                        color: kRed,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        "Helpdesk",
+                        style: kSemiBoldTextStyle.copyWith(
+                            fontSize: 12, color: kRed),
+                      )
+                    ],
                   ),
-                  const SizedBox(width: 5),
-                  Text(
-                    namaDormitizen,
-                    style: kSemiBoldTextStyle.copyWith(fontSize: 12),
-                  )
-                ],
-              ),
-              const SizedBox(height: 5),
-              Row(
-                children: [
-                  const Icon(Icons.timer, size: 18, color: kGrey),
-                  const SizedBox(width: 5),
-                  Text(
-                    paketSampai,
-                    style:
-                        kSemiBoldTextStyle.copyWith(fontSize: 12, color: kGrey),
-                  )
-                ],
-              ),
-              const SizedBox(height: 5),
-              if (status == "sudah")
+                const SizedBox(height: 5),
                 Row(
                   children: [
                     const Icon(
-                      Icons.timer,
+                      FontAwesomeIcons.solidCircleUser,
                       size: 18,
-                      color: kGrey,
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      paketDiambil,
-                      style: kSemiBoldTextStyle.copyWith(
-                          fontSize: 12, color: kGrey),
+                      paket['pemilik_paket']['nama'] ?? 'Tidak diketahui',
+                      style: kSemiBoldTextStyle.copyWith(fontSize: 12),
                     )
                   ],
                 ),
-              const SizedBox(height: 5),
-            ],
+                const SizedBox(height: 5),
+                Row(
+                  children: [
+                    const Icon(Icons.timer, size: 18, color: kGrey),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        getFormattedDate(paket['waktu_tiba'] ?? '') ??
+                            "Belum diambil",
+                        style: kSemiBoldTextStyle.copyWith(
+                            fontSize: 12, color: kGrey),
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(height: 5),
+                if ((paket['status_pengambilan'] ?? 'belum') == "sudah")
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.timer,
+                        size: 18,
+                        color: kGrey,
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          '${paket['penerima_paket']['nama'] ?? 'Tidak diketahui'} (PJ Paket)',
+                          style: kSemiBoldTextStyle.copyWith(
+                              fontSize: 12, color: kGrey),
+                        ),
+                      )
+                    ],
+                  ),
+                const SizedBox(height: 5),
+              ],
+            ),
           )
         ],
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Untuk FilteringTextInputFormatter
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:my_dorm/components/appbar_page.dart';
 import 'package:my_dorm/components/gradient_button.dart';
 import 'package:my_dorm/constant/constant.dart';
@@ -16,7 +17,6 @@ class SearchKamarToAddPelanggaran extends StatefulWidget {
 
 class _SearchKamarToAddPelanggaranState
     extends State<SearchKamarToAddPelanggaran> {
-      
   List<Map<String, dynamic>> dormitizens = [];
   final TextEditingController _kamarController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -60,82 +60,85 @@ class _SearchKamarToAddPelanggaranState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBgColor,
-      body: Column(
-        children: [
-          const AppBarPage(title: 'Tambah Pelanggaran'),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(30),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _kamarController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        decoration: InputDecoration(
-                          labelText: 'Nomor Kamar',
-                          hintText: 'Masukkan nomor kamar',
-                          border: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(8),
+      body: ModalProgressHUD(
+        inAsyncCall: _showSpinner,
+        child: Column(
+          children: [
+            const AppBarPage(title: 'Tambah Pelanggaran'),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(30),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _kamarController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: InputDecoration(
+                            labelText: 'Nomor Kamar',
+                            hintText: 'Masukkan nomor kamar',
+                            border: OutlineInputBorder(
+                              borderSide: const BorderSide(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  const BorderSide(color: kMain, width: 2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            floatingLabelStyle: TextStyle(
+                              color: _formKey.currentState?.validate() == false
+                                  ? Colors.red
+                                  : kMain,
+                            ),
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide:
-                                const BorderSide(color: kMain, width: 2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          floatingLabelStyle: TextStyle(
-                            color: _formKey.currentState?.validate() == false
-                                ? Colors.red
-                                : kMain,
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Nomor kamar tidak boleh kosong';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      GradientButton(
-                        ontap: () async {
-                          if (_formKey.currentState?.validate() ?? false) {
-                            await searchDormitizen(_kamarController.text);
-                            if (dormitizens.isNotEmpty) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const AddPelanggaranPage(
-                                          // Kirim semua data hasil pencarian
-                                          ),
-                                ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text(
-                                        'Data Dormitizen tidak ditemukan')),
-                              );
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Nomor kamar tidak boleh kosong';
                             }
-                          }
-                        },
-                        title: 'Cari ',
-                      ),
-                    ],
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        GradientButton(
+                          ontap: () async {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              await searchDormitizen(_kamarController.text);
+                              if (dormitizens.isNotEmpty) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const AddPelanggaranPage(
+                                            // Kirim semua data hasil pencarian
+                                            ),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          'Data Dormitizen tidak ditemukan')),
+                                );
+                              }
+                            }
+                          },
+                          title: 'Cari ',
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

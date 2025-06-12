@@ -10,7 +10,8 @@ import 'package:my_dorm/service/image_service.dart';
 import 'dart:developer' as dev;
 
 class ListPelanggaranPage extends StatefulWidget {
-  const ListPelanggaranPage({super.key});
+  final String noKamar;
+  const ListPelanggaranPage({super.key, required this.noKamar});
 
   @override
   State<ListPelanggaranPage> createState() => _ListPelanggaranPageState();
@@ -21,29 +22,45 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
   List<Map<String, dynamic>> dormitizens = [];
   int max_pelanggaran = 9;
   String error = "";
+  String kamarId = "";
   bool _showSpinner = false;
 
   @override
   void initState() {
     super.initState();
-    getPelanggaran();
-    getDormitizenbyKamar();
+    getPelanggaranByKamar();
+  }
+
+  Future<void> refreshData() async {
+    setState(() {
+      _showSpinner = true;
+      dormitizens.clear();
+      pelanggarans.clear();
+    });
+    await getPelanggaranByKamar();
   }
 
   Future<void> getDormitizenbyKamar() async {
     error = "";
     try {
       String? token = await getToken();
-      var response = await getDataToken('/user/101', token!);
-      List<Map<String, dynamic>> parsedData = (response['response'] as List)
+      var response =
+          await getDataToken('/dormitizen/${widget.noKamar}', token!);
+      List<Map<String, dynamic>> parsedData = (response['data'] as List)
           .map((item) => item as Map<String, dynamic>)
           .toList();
       setState(() {
         for (int i = 0; i < parsedData.length; i++) {
-          dormitizens
-              .add({'nama': parsedData[i]['nama'], 'jml_pelanggaran': 0});
+          dormitizens.add({
+            'nama': parsedData[i]['nama'],
+            'dormitizen_id': parsedData[i]['dormitizen_id'],
+            'jml_pelanggaran': 0,
+            'gambar': parsedData[i]['gambar'],
+          });
         }
+        kamarId = parsedData[0]['kamar']['kamar_id'];
       });
+      dev.log('Kamar ID: $kamarId');
     } catch (e) {
       print(e);
       setState(() {
@@ -52,23 +69,18 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
     }
   }
 
-  String formatTanggal(String tanggal) {
-    DateTime dateTime = DateTime.parse(tanggal).toLocal();
-    return DateFormat('dd MMM yyyy, HH:mm').format(dateTime);
-  }
-
-  Future<void> getPelanggaran() async {
+  Future<void> getPelanggaranByKamar() async {
     error = "";
     setState(() {
       _showSpinner = true;
     });
+    await getDormitizenbyKamar();
     try {
       String? token = await getToken();
-      var response = await getDataToken('/pelanggaran', token!);
+      var response = await getDataToken('/pelanggaran/kamar/$kamarId', token!);
       List<Map<String, dynamic>> parsedData = (response['data'] as List)
           .map((item) => item as Map<String, dynamic>)
           .toList();
-      print(response);
       setState(() {
         pelanggarans = parsedData;
       });
@@ -78,17 +90,21 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
         error = "Error: $e";
       });
     } finally {
-      setState(() {
-        _showSpinner = false;
-        for (int i = 0; i < pelanggarans.length; i++) {
-          for (int j = 0; j < dormitizens.length; j++) {
-            if ((pelanggarans[i]['dormitizen']['nama'] ==
-                    dormitizens[j]['nama']) &&
-                (dormitizens[j]['jml_pelanggaran'] < max_pelanggaran)) {
+      dev.log('Pelanggaran length: ${pelanggarans.length}');
+      for (int i = 0; i < pelanggarans.length; i++) {
+        print('Pelanggaran ${i + 1}: ${pelanggarans[i]}');
+        for (int j = 0; j < dormitizens.length; j++) {
+          if ((pelanggarans[i]['pelanggar']['nama'] ==
+                  dormitizens[j]['nama']) &&
+              (dormitizens[j]['jml_pelanggaran'] < max_pelanggaran)) {
+            setState(() {
               dormitizens[j]['jml_pelanggaran'] += 1;
-            }
+            });
           }
         }
+      }
+      setState(() {
+        _showSpinner = false;
       });
     }
   }
@@ -99,54 +115,18 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
       body: Column(
         children: [
           AppBarPage(
-            title: 'Daftar Pelanggaran',
+            title: 'Pelanggaran Kamar ${widget.noKamar}',
             onAdd: () async {
-              Navigator.push(
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AddPelanggaranPage(
-                      // Kirim semua data hasil pencarian
-                      ),
+                  builder: (context) => const AddPelanggaranPage(),
                 ),
               );
+              if (result != null) {
+                refreshData();
+              }
             },
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 50,
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: kGrey),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.search),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        Text('Cari')
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: kGrey),
-                    ),
-                    child: Icon(Icons.filter_alt)),
-              ],
-            ),
           ),
           if (_showSpinner)
             const Padding(
@@ -155,6 +135,13 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
                   child: CircularProgressIndicator(
                 color: kMain,
               )),
+            )
+          else if (dormitizens.isEmpty)
+            Center(
+              child: Text(
+                "Tidak ada Dormitizen di kamar ini",
+                style: kMediumTextStyle.copyWith(color: Colors.grey),
+              ),
             )
           else if (error.isNotEmpty)
             Center(
@@ -175,14 +162,17 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: ShadowContainer(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => ListDetailPelanggaranPage(
-                                namaDormitizen: dormitizen['nama']),
+                                dormitizenId: dormitizen['dormitizen_id'],
+                                noKamar: widget.noKamar),
                           ),
                         );
+
+                        refreshData();
                       },
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,18 +181,10 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
                             borderRadius: BorderRadius.circular(8),
                             child: MyNetworkImage(
                               imageURL:
-                                  'https://mydorm-mobile-backend-production.up.railway.app/images/${pelanggaran['gambar']}',
-                              width: 100,
-                              height: 100,
+                                  'https://mydorm-mobile-backend-production-5f66.up.railway.app/images/foto-profil/${dormitizen['gambar'].replaceAll('_', '-')}',
+                              width: 50,
+                              height: 50,
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  width: 50,
-                                  height: 50,
-                                  color: Colors.grey[300],
-                                  child: const Icon(Icons.image_not_supported),
-                                );
-                              },
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -226,7 +208,8 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
                                           minHeight: 8,
                                           backgroundColor: kGrey,
                                           valueColor:
-                                              AlwaysStoppedAnimation(kRed),
+                                              const AlwaysStoppedAnimation(
+                                                  kRed),
                                         ),
                                       ),
                                     ),
@@ -242,7 +225,7 @@ class _ListPelanggaranPageState extends State<ListPelanggaranPage> {
                                             style: kMediumTextStyle.copyWith(
                                                 fontSize: 15, color: kRed),
                                           ),
-                                          TextSpan(text: "/${max_pelanggaran}")
+                                          TextSpan(text: "/$max_pelanggaran")
                                         ]))
                                   ],
                                 ),
