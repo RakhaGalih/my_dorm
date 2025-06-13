@@ -30,7 +30,7 @@ class StatisticBox extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                        "${DateFormat('MMMM').format(DateTime(0, date.month))} ${date.year}",
+                        "Log Keluar-Masuk",
                         textAlign: TextAlign.start,
                         style: kBoldTextStyle.copyWith(fontSize: 14)),
                     const Text(

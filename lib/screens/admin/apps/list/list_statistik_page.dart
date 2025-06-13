@@ -18,29 +18,19 @@ class ListStatistikPage extends StatelessWidget {
     ];
 
     return Scaffold(
-        body: Column(children: [
-      const AppBarPage(
-        title: 'Statistik',
-      ),
-      const SizedBox(height: 20),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30),
-        child: Row(
-          children: [
-            const Expanded(child: SearchBox(placehold: "Cari Statistik")),
-            const SizedBox(
-              width: 20,
-            ),
-            FilterButton()
-          ],
-        ),
-      ),
-      Column(
-          children: List.generate(
-              statistics.length,
-              (index) => StatisticBox(
-                  date: statistics[index].date,
-                  url_file: statistics[index].url_file)))
-    ]));
+        body: SingleChildScrollView(
+          child: Column(children: [
+                const AppBarPage(
+          title: 'Statistik',
+                ),
+                const SizedBox(height: 20),
+                Column(
+            children: List.generate(
+                statistics.length,
+                (index) => StatisticBox(
+                    date: statistics[index].date,
+                    url_file: statistics[index].url_file)))
+              ]),
+        ));
   }
 }

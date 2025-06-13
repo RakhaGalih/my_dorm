@@ -10,8 +10,8 @@ import 'package:my_dorm/screens/admin/apps/list/list_informasi_page.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_my_log.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_my_paket.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_paket_page.dart';
+import 'package:my_dorm/screens/admin/apps/list/list_paket_page_dormitizen.dart';
 import 'package:my_dorm/screens/admin/apps/list/list_riwayat_request_page.dart';
-import 'package:my_dorm/screens/admin/apps/list/list_statistik_page.dart';
 import 'package:my_dorm/screens/auth/login_page.dart';
 import 'package:my_dorm/service/converter.dart';
 import 'package:my_dorm/service/http_service.dart';
@@ -416,7 +416,7 @@ class _HomePageSRState extends State<HomePageSR> {
                               AppsIcon(
                                 icon: FontAwesomeIcons.box,
                                 title: 'Paket',
-                                pushWidget: ListPaketPage(),
+                                pushWidget: ListPaketPageSR(),
                               ),
                               AppsIcon(
                                 icon: FontAwesomeIcons.bullhorn,
@@ -428,12 +428,6 @@ class _HomePageSRState extends State<HomePageSR> {
                           Row(
                             children: [
                               AppsIcon(
-                                icon: FontAwesomeIcons.chartSimple,
-                                title: 'Statistik',
-                                // pushWidget: UnavailableFeaturesPage(),
-                                pushWidget: ListStatistikPage(),
-                              ),
-                              AppsIcon(
                                 icon: FontAwesomeIcons.bookmark,
                                 title: 'My Log',
                                 pushWidget: ListMyLog(),
@@ -443,6 +437,7 @@ class _HomePageSRState extends State<HomePageSR> {
                                 title: 'My Paket',
                                 pushWidget: ListMyPaketPage(),
                               ),
+                              Expanded(child: SizedBox())
                             ],
                           ),
                         ],

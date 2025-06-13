@@ -175,28 +175,7 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(
                         height: 10,
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const RegisterPage()));
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Belum ada akun? ',
-                              style: kRegularTextStyle.copyWith(fontSize: 16),
-                            ),
-                            Text(
-                              'Register',
-                              style: kBoldTextStyle.copyWith(
-                                  fontSize: 16, color: kMain),
-                            ),
-                          ],
-                        ),
-                      ),
+                      
                     ],
                   ),
                 ),

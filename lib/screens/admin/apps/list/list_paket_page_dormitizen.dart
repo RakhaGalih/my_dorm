@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:my_dorm/components/appbar_page.dart';
-import 'package:my_dorm/components/gradient_button.dart';
-import 'package:my_dorm/components/outline_button.dart';
 import 'package:my_dorm/components/paket_card.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/screens/admin/apps/form/add_paket_page.dart';
@@ -12,18 +10,18 @@ import 'package:my_dorm/screens/common/detail_image.dart';
 import 'package:my_dorm/service/http_service.dart';
 import 'package:my_dorm/service/image_service.dart';
 
-class ListPaketPage extends StatefulWidget {
+class ListPaketPageSR extends StatefulWidget {
   final String? role;
-  const ListPaketPage({
+  const ListPaketPageSR({
     super.key,
     this.role,
   });
 
   @override
-  State<ListPaketPage> createState() => _ListPaketPageState();
+  State<ListPaketPageSR> createState() => _ListPaketPageSRState();
 }
 
-class _ListPaketPageState extends State<ListPaketPage> {
+class _ListPaketPageSRState extends State<ListPaketPageSR> {
   List<Map<String, dynamic>> pakets = [];
   List<Map<String, dynamic>> pakets_belum = [];
   List<Map<String, dynamic>> pakets_sudah = [];
@@ -286,38 +284,6 @@ class _ListPaketPageState extends State<ListPaketPage> {
                         "${formatTanggal(paket['waktu_diambil'])} (Diserahkan)"),
                   ],
                 ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                child: Column(
-                  children: [
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    GradientButton(
-                        ontap: () async {
-                          await updatePaket(paket['paket_id']);
-                          Navigator.of(context).pop();
-                          await getPaket();
-                        },
-                        title: "Selesai"),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    OutlineButton(
-                        ontap: () {
-                          confirmDialog(context, "Konfirmasi Penghapusan",
-                              "Apakah anda yakin ingin menghapus data paket ini",
-                              () async {
-                            await deletePaket(paket['paket_id']);
-                            Navigator.of(context).pop();
-                            Navigator.of(context).pop();
-                            await getPaket();
-                          });
-                        },
-                        title: "Hapus Paket"),
-                  ],
-                ),
-              ),
             ],
           ),
         );
@@ -423,67 +389,14 @@ class _ListPaketPageState extends State<ListPaketPage> {
                               pakets_belum.length,
                               (index) => Stack(children: [
                                     InkWell(
-                                        onTap: () {
-                                          showPaketDetail(pakets_belum[index]);
-                                        },
-                                        child: GestureDetector(
-                                          onLongPress: () {
-                                            confirmDialog(
-                                                context,
-                                                "Konfirmasi Penghapusan",
-                                                "Apakah anda yakin ingin menghapus data paket ini?",
-                                                () async {
-                                              await deletePaket(
-                                                  pakets_belum[index]
-                                                      ['paket_id']);
-                                              Navigator.of(context).pop();
-                                              await getPaket();
-                                            });
-                                          },
-                                          child: PaketCard(
-                                            paket: pakets_belum[index],
-                                          ),
-                                        )),
-                                    Positioned(
-                                      top: 15,
-                                      right: 10,
-                                      child: GestureDetector(
-                                        onTap: () async {
-                                          await updatePaket(
-                                              pakets_belum[index]['paket_id']);
-                                          await getPaket();
-                                        },
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          decoration: BoxDecoration(
-                                              gradient: kGradientMain,
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(15.0),
-                                            child: Row(
-                                              children: [
-                                                const Icon(
-                                                  FontAwesomeIcons.check,
-                                                  size: 16,
-                                                  color: kWhite,
-                                                ),
-                                                const SizedBox(
-                                                  width: 5,
-                                                ),
-                                                Text(
-                                                  "Selesai",
-                                                  style:
-                                                      kBoldTextStyle.copyWith(
-                                                          color: kWhite,
-                                                          fontSize: 16),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
+                                      onTap: () {
+                                        showPaketDetail(pakets_belum[index]);
+                                      },
+                                      child: PaketCard(
+                                        paket: pakets_belum[index],
                                       ),
-                                    )
+                                    ),
+                                    
                                   ])),
                         ),
                   const SizedBox(
@@ -501,30 +414,16 @@ class _ListPaketPageState extends State<ListPaketPage> {
                         )
                       : Column(
                           children: List.generate(
-                              pakets_sudah.length,
-                              (index) => InkWell(
-                                    onTap: () {
-                                      showPaketDetail(pakets_sudah[index]);
-                                    },
-                                    child: GestureDetector(
-                                      onLongPress: () {
-                                        confirmDialog(
-                                            context,
-                                            "Konfirmasi Penghapusan",
-                                            "Apakah anda yakin ingin menghapus data paket ini",
-                                            () async {
-                                          await deletePaket(
-                                              pakets_sudah[index]['paket_id']);
-                                          Navigator.of(context).pop();
-                                          await getPaket();
-                                        });
-                                      },
-                                      child: PaketCard(
-                                        paket: pakets_sudah[index],
-                                      ),
-                                    ),
-                                  )),
-                        ),
+                          pakets_sudah.length,
+                          (index) => InkWell(
+                            onTap: () {
+                              showPaketDetail(pakets_sudah[index]);
+                            },
+                            child: PaketCard(
+                              paket: pakets_sudah[index],
+                            ),
+                          ),
+                        )),
                 ],
               ),
             ),
