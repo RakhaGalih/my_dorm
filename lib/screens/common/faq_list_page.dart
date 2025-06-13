@@ -39,18 +39,6 @@ class FaqListPage extends StatelessWidget {
             title: 'FAQ',
           ),
           const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
-            child: Row(
-              children: [
-                const Expanded(child: SearchBox(placehold: "Cari")),
-                const SizedBox(
-                  width: 20,
-                ),
-                FilterButton()
-              ],
-            ),
-          ),
           const SizedBox(height: 20),
           Column(
               children: List.generate(

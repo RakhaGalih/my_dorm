@@ -153,7 +153,7 @@ class _ProfilPageDromitizenState extends State<ProfilPageDromitizen> {
                   height: MediaQuery.of(context).size.width * 0.06,
                 ),
                 Container(
-                  width: MediaQuery.of(context).size.width * 0.4,
+                  width: MediaQuery.of(context).size.width * 0.4,                                                             
                   height: MediaQuery.of(context).size.width * 0.4,
                   decoration: BoxDecoration(
                       border: Border.all(color: kWhite, width: 2),

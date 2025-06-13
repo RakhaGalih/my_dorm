@@ -4,7 +4,6 @@ import 'package:my_dorm/components/appbar_page.dart';
 import 'package:my_dorm/components/shadow_container.dart';
 import 'package:my_dorm/constant/constant.dart';
 import 'package:my_dorm/screens/common/faq_list_page.dart';
-import 'package:my_dorm/screens/common/report_list_page.dart';
 
 class PusatBantuanPage extends StatelessWidget {
   const PusatBantuanPage({super.key});
@@ -47,7 +46,7 @@ class PusatBantuanPage extends StatelessWidget {
           const SizedBox(
             height: 20,
           ),
-          ShadowContainer(
+          /*ShadowContainer(
               onTap: () {
                 Navigator.push(
                     context,
@@ -73,7 +72,7 @@ class PusatBantuanPage extends StatelessWidget {
                     color: kMain,
                   )
                 ],
-              ))
+              ))*/
         ],
       ),
     );
