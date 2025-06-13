@@ -1,0 +1,2 @@
+/Users/rakha/Assignment/Abdimas/Flutter/my_dorm/android/app/.cxx/RelWithDebInfo/6c57431a/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/rakha/Assignment/Abdimas/Flutter/my_dorm/android/app/.cxx/RelWithDebInfo/6c57431a/arm64-v8a/CMakeFiles/rebuild_cache.dir
