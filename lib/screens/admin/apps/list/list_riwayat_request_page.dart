@@ -19,6 +19,7 @@ class ListRiwayatRequestPage extends StatefulWidget {
 class _ListRiwayatRequestPageState extends State<ListRiwayatRequestPage> {
   List<RequestModel> logs = [];
   bool isLoading = true;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -26,9 +27,13 @@ class _ListRiwayatRequestPageState extends State<ListRiwayatRequestPage> {
     fetchLogs();
   }
 
-  Future<void> fetchLogs() async {
+  Future<void> fetchLogs({String? search}) async {
     try {
-      final result = await fetchLogKeluarMasuk();
+      String queryString = '';
+      if (search != null && search.isNotEmpty) {
+        queryString = '?search=${Uri.encodeQueryComponent(search)}';
+      }
+      final result = await fetchLogKeluarMasuk(queryString: queryString);
       setState(() {
         logs = result;
         isLoading = false;
@@ -56,33 +61,49 @@ class _ListRiwayatRequestPageState extends State<ListRiwayatRequestPage> {
       SizedBox(height: 20),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30),
-        child: Row(
-          children: [
-            const Expanded(child: SearchBox(placehold: "Cari Riwayat log")),
-            const SizedBox(
-              width: 20,
-            ),
-            FilterButton()
-          ],
+        child: Container(
+          height: 50,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: kGrey),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.search),
+              SizedBox(width: 5),
+              Expanded(
+                  child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                    hintText: 'cari judul',
+                    border: InputBorder.none,
+                    isDense: true),
+                onChanged: (value) {
+                  fetchLogs(search: value);
+                },
+              ))
+            ],
+          ),
         ),
       ),
-       Expanded(
-          child: isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : filteredLogs.isEmpty
-                  ? const Center(child: Text('Tidak ada riwayat log.'))
-                  : ListView.builder(
-                      itemCount: filteredLogs.length,
-                      itemBuilder: (context, index) {
-                        final log = filteredLogs[index];
-                        return LogBox(
-                          nama: log.name,
-                          type: log.type,
-                          date: log.date,
-                        );
-                      },
-                    ),
-        ),
+      Expanded(
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : filteredLogs.isEmpty
+                ? const Center(child: Text('Tidak ada riwayat log.'))
+                : ListView.builder(
+                    itemCount: filteredLogs.length,
+                    itemBuilder: (context, index) {
+                      final log = filteredLogs[index];
+                      return LogBox(
+                        nama: log.name,
+                        type: log.type,
+                        date: log.date,
+                      );
+                    },
+                  ),
+      ),
     ]));
   }
 }
