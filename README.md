@@ -1,7 +1,15 @@
 # My Dorm
-Smart solutions for dormitory management at Telkom University. With comprehensive features such as resident check-in and check-out records, package management, violation tracking, and announcements, **My Dorm** ensures everything runs more easily, quickly, and efficiently. Create a more comfortable and organized dormitory experience!
+## Your All-in-One Dormitory Management Solution
 
-![1733705803502](https://github.com/user-attachments/assets/7725173d-dbde-4fd4-979d-f708cf7ea9b3)
+According to observations, many students face difficulties in obtaining up-to-date information regarding their check-in/check-out status, received packages, and important announcements from the dormitory.
+
+My Dorm offers a smart solution for dormitory management at Telkom University. It provides comprehensive features such as resident check-in/check-out logging, package management, violation tracking, and announcements.
+
+### Tech Stack
+
+<div>
+  <img src="https://github.com/devicons/devicon/blob/master/icons/dart/dart-original-wordmark.svg" title="Visual Studio Code" alt="Visual Studio Code" height="40"/>&nbsp;
+</div>
 
 [PPT MARKETING-3_Tim Matrixpdf.pdf](https://github.com/user-attachments/files/18328950/PPT.MARKETING-3_Tim.Matrixpdf.pdf)
 
