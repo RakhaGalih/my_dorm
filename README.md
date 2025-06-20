@@ -7,9 +7,30 @@ My Dorm offers a smart solution for dormitory management at Telkom University. I
 
 ### Tech Stack
 
-<div>
-  <img src="https://github.com/devicons/devicon/blob/master/icons/dart/dart-original-wordmark.svg" title="Visual Studio Code" alt="Visual Studio Code" height="40"/>&nbsp;
+<div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+  <!-- Dart -->
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dart/dart-original.svg" title="Dart" alt="Dart" height="40"/>
+
+  <!-- Flutter -->
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg" title="Flutter" alt="Flutter" height="40"/>
+
+  <!-- JavaScript -->
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" title="JavaScript" alt="JavaScript" height="40"/>
+
+  <!-- Node.js -->
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" title="Node.js" alt="Node.js" height="40"/>
+
+  <!-- Express -->
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg" title="Express" alt="Express" height="40" style="background-color: white;"/>
+
+  <!-- MySQL -->
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" title="MySQL" alt="MySQL" height="40"/>
+
+  <!-- Firebase -->
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg" title="Firebase" alt="Firebase" height="40"/>
 </div>
+
+
 
 [PPT MARKETING-3_Tim Matrixpdf.pdf](https://github.com/user-attachments/files/18328950/PPT.MARKETING-3_Tim.Matrixpdf.pdf)
 
