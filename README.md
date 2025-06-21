@@ -32,6 +32,10 @@ My Dorm offers a smart solution for dormitory management at Telkom University. I
 
 ![Image](https://github.com/user-attachments/assets/dd3b923a-1ea7-4742-9e4d-a000b108e588)
 
+### Video Demo
+
+https://www.youtube.com/watch?v=BRpNyuVgovs
+
 [PPT MARKETING-3_Tim Matrixpdf.pdf](https://github.com/user-attachments/files/18328950/PPT.MARKETING-3_Tim.Matrixpdf.pdf)
 
 
