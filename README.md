@@ -30,7 +30,7 @@ My Dorm offers a smart solution for dormitory management at Telkom University. I
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg" title="Firebase" alt="Firebase" height="40"/>
 </div>
 
-
+![Image](https://github.com/user-attachments/assets/dd3b923a-1ea7-4742-9e4d-a000b108e588)
 
 [PPT MARKETING-3_Tim Matrixpdf.pdf](https://github.com/user-attachments/files/18328950/PPT.MARKETING-3_Tim.Matrixpdf.pdf)
 
